@@ -40,8 +40,8 @@ class Post(db.Model):
         autoincrement=True
     )
 
-    author = db.Column(
-        db.String(50),
+    author_id = db.Column(
+        db.Integer,
         db.ForeignKey("users.id")
     )
 
@@ -63,7 +63,7 @@ class Post(db.Model):
 
     created_at = db.Column(
         db.DateTime,
-        nullable=false,
+        nullable=False,
         default=db.func.now()
     )
 
@@ -98,18 +98,18 @@ class Comment(db.Model):
 
     created_at = db.Column(
         db.DateTime,
-        nullable=false,
+        nullable=False,
         default=db.func.now()
     )
 
     # not setting up as FK since this could be a parent comment, in which case
     # this would be "None"
-    parent_comment_id = db.Integer(
+    parent_comment_id = db.Column(
         db.Integer
     )
 
     author = db.Column(
-        db.String(50),
+        db.Integer,
         db.ForeignKey("users.id")
     )
 
@@ -137,7 +137,8 @@ class Tag(db.Model):
     )
 
     description = db.Column(
-        db.Text
+        db.Text,
+        nullable=False
     )
 
 
@@ -148,11 +149,13 @@ class PostTag(db.Model):
 
     post_id = db.Column(
         db.Integer,
-        db.ForeignKey("posts.id")
+        db.ForeignKey("posts.id"),
+        primary_key=True
     )
 
     tag_id = db.Column(
         db.Integer,
-        db.ForeignKey("tags.id")
+        db.ForeignKey("tags.id"),
+        primary_key=True
     )
     

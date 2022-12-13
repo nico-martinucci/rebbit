@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}add tag{% endblock %}
+
+{% block content %}
+<h1>add a tag</h1>
+
+<form id="add-tag-form" method="POST">
+    {{ form.hidden_tag() }} <!--add type=hidden form fields -->
+
+    {% for field in form
+    if field.widget.input_type != 'hidden' %}
+
+    <div>
+        {{ field.label }}
+        {{ field }}
+
+        {% for error in field.errors %}
+        {{ error }}
+        {% endfor %}
+    </div>
+
+    {% endfor %}
+
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+
+{% for msg in get_flashed_messages()%}
+  <p>{{msg}}</p>
+{%endfor%}
+
+<h2>current tags</h2>
+<ul id="tags">
+    {% for tag in tags %}
+        <li>{{tag.tag}}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
