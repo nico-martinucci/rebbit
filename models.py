@@ -1,8 +1,10 @@
 """ Models for users, posts, comments, and tags """
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 def connect_db(app):
     app.app_context().push()
@@ -27,6 +29,39 @@ class User(db.Model):
         nullable=False,
         unique=True
     )
+
+    password = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    email = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    @classmethod
+    def register(cls, username, email, password):
+        """ Hashes provided password and returns a new User instance. """
+        
+        hashed = bcrypt.generate_password_hash(password).decode("utf8")
+
+        return cls(
+            username=username, 
+            email=email, 
+            password=hashed
+        )
+
+    @classmethod
+    def authenticate(cls, username, password):
+        """ Authenticates the provided username/password combo. """
+
+        user = cls.query.filter(username=username).one_or_none()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            return user
+        else:
+            return False
 
 
 class Post(db.Model):

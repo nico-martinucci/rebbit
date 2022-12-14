@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
-{% block title %}add post{% endblock %}
+{% block title %}login{% endblock %}
 
 {% block content %}
-<h1>add a post</h1>
+<h1>login</h1>
 
 <form id="add-post-form" method="POST">
     {{ form.hidden_tag() }} <!--add type=hidden form fields -->
@@ -22,11 +22,9 @@
 
     {% endfor %}
 
-    <button class="btn btn-primary" type="submit">Submit</button>
+    <button class="btn btn-primary" type="submit">Login</button>
 </form>
 
-<section id="posts">
-
-</section>
+<span>not yet registered? <a href="/register">click here!</a></span>
 
 {% endblock %}

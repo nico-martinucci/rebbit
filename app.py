@@ -1,9 +1,9 @@
 """ nebbit application """
 
-from flask import Flask, request, redirect, render_template, flash
+from flask import Flask, request, redirect, render_template, flash, session
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Comment, Tag
-from forms import AddPostForm, AddTagsForm
+from forms import AddPostForm, AddTagsForm, LoginForm, RegisterForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///nebbit'
@@ -21,6 +21,49 @@ def show_home_page():
     """ Renders home page of posts. """
 
     return render_template("index.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login_user():
+    """ Handles form load and loging in for an existing user. """
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.username.password
+
+        user = User.authenticate(username=username, password=password)
+
+        if user:
+            flash(f"welcome, {}!")
+            return redirect("/")
+        else:
+            flash(f"user {user.username} not found")
+
+    return render_template("login.html", form=form)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register_user():
+    """ Handles form load and registering for a new user. """
+
+    form = RegisterForm()
+
+    if form.validate_on_submit():
+        email = form.email.data
+        username = form.username.data
+        password = form.password.data
+        password_2 = form.password_2.data
+
+        # add in check to make sure passwords match
+
+        new_user = User.register(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        #TODO: update session with current user, finish rest of route
 
 
 @app.route("/add-tag", methods=["GET", "POST"])
