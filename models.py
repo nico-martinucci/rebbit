@@ -45,18 +45,20 @@ class User(db.Model):
         """ Hashes provided password and returns a new User instance. """
         
         hashed = bcrypt.generate_password_hash(password).decode("utf8")
-
-        return cls(
+        user = cls(
             username=username, 
             email=email, 
             password=hashed
         )
 
+        db.session.add(user)
+        return user
+
     @classmethod
     def authenticate(cls, username, password):
         """ Authenticates the provided username/password combo. """
 
-        user = cls.query.filter(username=username).one_or_none()
+        user = cls.query.filter_by(username=username).one_or_none()
 
         if user and bcrypt.check_password_hash(user.password, password):
             return user
@@ -106,6 +108,12 @@ class Post(db.Model):
         db.Integer,
         nullable=False,
         default=0
+    )
+
+    tags = db.relationship(
+        "Tag",
+        secondary="posts_tags",
+        backref="posts"
     )
 
 

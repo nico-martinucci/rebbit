@@ -1,9 +1,12 @@
 """ nebbit application """
-
-from flask import Flask, request, redirect, render_template, flash, session
+import os
+from dotenv import load_dotenv
+from flask import Flask, request, redirect, render_template, flash, session, g
+from flask_wtf.csrf import CSRFProtect
+from sqlalchemy.exc import IntegrityError
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Comment, Tag
-from forms import AddPostForm, AddTagsForm, LoginForm, RegisterForm
+from forms import AddPostForm, AddTagsForm, LoginForm, RegisterForm, CSRFProtectForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///nebbit'
@@ -13,14 +16,36 @@ app.config['SECRET_KEY'] = 'tacosandburritos'
 
 # debug = DebugToolbarExtension(app)
 
+CURR_USER_KEY = "curr_user"
+
 connect_db(app)
+# db.drop_all()
 db.create_all()
+
+@app.before_request
+def add_user_to_g():
+    """If we're logged in, add curr user to Flask global."""
+
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
+
+    else:
+        g.user = None
+
+
+@app.before_request
+def create_csrf_only_form():
+    """ Adds CSFR only form for use in all routes. """
+    
+    g.csrf_form = CSRFProtectForm()
+
 
 @app.get("/")
 def show_home_page():
     """ Renders home page of posts. """
 
     return render_template("index.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login_user():
@@ -30,15 +55,15 @@ def login_user():
 
     if form.validate_on_submit():
         username = form.username.data
-        password = form.username.password
+        password = form.password.data
 
         user = User.authenticate(username=username, password=password)
 
         if user:
-            flash(f"welcome, {}!")
+            flash(f"welcome, {user.username}!", "success")
             return redirect("/")
         else:
-            flash(f"user {user.username} not found")
+            flash(f"user {username} not found", "danger")
 
     return render_template("login.html", form=form)
 
@@ -62,8 +87,15 @@ def register_user():
             email=email,
             password=password
         )
+        db.session.commit()
 
         #TODO: update session with current user, finish rest of route
+        session[CURR_USER_KEY] = new_user.id
+
+        flash(f"welcome, {new_user.username}!", "success")
+        return redirect("/")
+    
+    return render_template("register.html", form=form)
 
 
 @app.route("/add-tag", methods=["GET", "POST"])
@@ -100,7 +132,7 @@ def add_new_post():
 
     form = AddPostForm()
     current_tags = Tag.query.all()
-    form.tags.choices = [
+    form.tag_ids.choices = [
         (tag.id, tag.tag)
         for tag in current_tags
     ]
@@ -108,12 +140,19 @@ def add_new_post():
     if form.validate_on_submit():
         title = form.title.data
         url = form.url.data
-        contet = form.content.data
+        content = form.content.data
+        tag_ids = form.tag_ids.data
 
         # need to get the current user ID in order to build a post...
-        new_post = Post(author_id=1, title=title, content=content, url=url, likes=1)
+        new_post = Post(author_id=g.user.id, title=title, content=content, url=url, likes=1)
 
         db.session.add(new_post)
+        db.session.commit()
+
+        for tag in tag_ids:
+            tag = Tag.query.get(tag)
+            new_post.tags.append(tag)
+        
         db.session.commit()
 
         flash("post successfully added!")

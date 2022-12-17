@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, TextAreaField, 
-    SelectMultipleField, PasswordField, EmailField, length
-from wtforms.validators import InputRequired, Optional, URL
+from wtforms import (StringField, SelectField, TextAreaField, 
+    SelectMultipleField, PasswordField, EmailField)
+from wtforms.validators import InputRequired, Optional, URL, length
 
 class AddPostForm(FlaskForm):
     """ Form for adding a new post. """
@@ -17,11 +17,12 @@ class AddPostForm(FlaskForm):
     )
 
     content = TextAreaField(
-        "Content: ",
+        "Content: "
     )
 
-    tags = SelectMultipleField(
-        "Tags: "
+    tag_ids = SelectMultipleField(
+        "Tags: ",
+        coerce=int
     )
 
 
@@ -52,15 +53,15 @@ class RegisterForm(FlaskForm):
         validators=[InputRequired(), length(max=20)]
     )
 
-    password = StringField{
-        "Password: "
+    password = PasswordField(
+        "Password: ",
         validators=[InputRequired(), length(max=20)]
-    }
+    )
 
-    password_2 = StringField{
-        "Re-type Password: "
+    password_2 = PasswordField(
+        "Re-type Password: ",
         validators=[InputRequired(), length(max=20)]
-    }
+    )
 
 class LoginForm(FlaskForm):
     """ Form for logging in for an existing user. """
@@ -70,8 +71,10 @@ class LoginForm(FlaskForm):
         validators=[InputRequired(), length(max=20)]
     )
 
-    password = StringField{
-        "Password: "
+    password = PasswordField(
+        "Password: ",
         validators=[InputRequired(), length(max=20)]
-    }
+    )
     
+class CSRFProtectForm(FlaskForm):
+    """Form just for CSRF Protection"""

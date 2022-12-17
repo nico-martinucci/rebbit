@@ -13,6 +13,9 @@
     />
   </head>
   <body>
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
     {% block content %} {% endblock %}
     <script src="http://unpkg.com/jquery"></script>
   </body>
