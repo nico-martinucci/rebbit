@@ -6,7 +6,8 @@ from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.exc import IntegrityError
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Comment, Tag
-from forms import AddPostForm, AddTagsForm, LoginForm, RegisterForm, CSRFProtectForm
+from forms import (AddPostForm, AddTagsForm, AddCommentForm, LoginForm, 
+    SignupForm, CSRFProtectForm)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///nebbit'
@@ -17,6 +18,7 @@ app.config['SECRET_KEY'] = 'tacosandburritos'
 # debug = DebugToolbarExtension(app)
 
 CURR_USER_KEY = "curr_user"
+PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 
 connect_db(app)
 # db.drop_all()
@@ -44,7 +46,9 @@ def create_csrf_only_form():
 def show_home_page():
     """ Renders home page of posts. """
 
-    return render_template("index.html")
+    all_posts = Post.query.order_by(Post.created_at.desc()).all()
+
+    return render_template("index.html", posts=all_posts)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -68,11 +72,11 @@ def login_user():
     return render_template("login.html", form=form)
 
 
-@app.route("/register", methods=["GET", "POST"])
-def register_user():
+@app.route("/signup", methods=["GET", "POST"])
+def signup_user():
     """ Handles form load and registering for a new user. """
 
-    form = RegisterForm()
+    form = SignupForm()
 
     if form.validate_on_submit():
         email = form.email.data
@@ -82,20 +86,19 @@ def register_user():
 
         # add in check to make sure passwords match
 
-        new_user = User.register(
+        new_user = User.signup(
             username=username,
             email=email,
             password=password
         )
         db.session.commit()
 
-        #TODO: update session with current user, finish rest of route
         session[CURR_USER_KEY] = new_user.id
 
         flash(f"welcome, {new_user.username}!", "success")
         return redirect("/")
     
-    return render_template("register.html", form=form)
+    return render_template("signup.html", form=form)
 
 
 @app.route("/add-tag", methods=["GET", "POST"])
@@ -117,7 +120,7 @@ def add_new_tag():
         db.session.add(new_tag)
         db.session.commit()
 
-        flash("tag successfully added")
+        flash("tag added!", "success")
         return redirect("/add-tag")
     else:
         return render_template("add_tag.html", form=form, tags=tags)
@@ -139,12 +142,18 @@ def add_new_post():
 
     if form.validate_on_submit():
         title = form.title.data
-        url = form.url.data
+        url = form.url.data or PLACEHOLDER_IMAGE_URL
         content = form.content.data
         tag_ids = form.tag_ids.data
 
         # need to get the current user ID in order to build a post...
-        new_post = Post(author_id=g.user.id, title=title, content=content, url=url, likes=1)
+        new_post = Post(
+            user_id=g.user.id, 
+            title=title, 
+            content=content, 
+            url=url, 
+            likes=1
+        )
 
         db.session.add(new_post)
         db.session.commit()
@@ -155,9 +164,42 @@ def add_new_post():
         
         db.session.commit()
 
-        flash("post successfully added!")
+        flash("post added!", "success")
         # later, should redirect to post detail page
         return redirect("/")
         
     else:
         return render_template("add_post.html", form=form)
+
+
+@app.route("/posts/<int:post_id>", methods=["GET", "POST"])
+def view_post(post_id):
+    """ View detail and comments for one individual post. """
+
+    form = AddCommentForm()
+
+    post = Post.query.get_or_404(post_id)
+    parent_comments = [
+        comment 
+        for comment in post.comments 
+        if comment.parent_comment_id is None
+    ]
+
+    return render_template(
+        "post.html", 
+        form=form,
+        post=post, 
+        parent_comments=parent_comments
+    )
+
+
+###############################################################################
+# API ROUTE
+
+@app.post("/posts/<int:post_id>/add-comment")
+def add_comment(post_id):
+    """ POSTs a new comment to the current post. """
+
+    form = AddCommentForm()
+
+    
