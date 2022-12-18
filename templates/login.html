@@ -3,9 +3,9 @@
 {% block title %}login{% endblock %}
 
 {% block content %}
-<h1>login</h1>
+<h3 class="m-2 p-2">login</h3>
 
-<form id="add-post-form" method="POST">
+<form class="m-2 p-2" id="add-post-form" method="POST">
     {{ form.hidden_tag() }} <!--add type=hidden form fields -->
 
     {% for field in form
@@ -22,9 +22,9 @@
 
     {% endfor %}
 
-    <button class="btn btn-primary" type="submit">Login</button>
+    <button class="btn btn-sm btn-primary" type="submit">Login</button>
 </form>
 
-<span>not yet registered? <a href="/register">click here!</a></span>
+<h6 class="m-2 p-2">not yet registered? <a href="/signup">click here!</a></h6>
 
 {% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}nebbit{% endblock %}
+
+{% block content %}
+
+<section id="post">
+    <div class="card flex-row flex-wrap m-2 p-2">
+        <div class="card-header border-0 p-0">
+            <img width="300px" src="{{post.url}}" alt="" />
+        </div>
+        <div class="card-block px-2 m-2">
+            <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
+            <p class="card-text"><small class="text-muted">
+                by <a href="/users/{{post.user.id}}">{{post.user.username}}</a> | 
+                posted on {{post.created_at}} | 
+                tagged in {% for tag in post.tag_list %}<a href="#"> {{ tag }} </a>{% endfor %}</small>
+            </p>
+            <p class="card-text">{{post.content}}</p>
+        </div>
+    </div>
+</section>
+
+<section id="add-comment">
+    <form class="m-2 p-2" id="add-tag-form" method="POST" action="/posts/{{post.id}}/add-comment">
+        {{ form.hidden_tag() }} <!--add type=hidden form fields -->
+    
+        {% for field in form
+        if field.widget.input_type != 'hidden' %}
+    
+        <div>
+            {{ field.label }}
+            {{ field }}
+    
+            {% for error in field.errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+    
+        {% endfor %}
+    
+        <button type="submit" class="btn btn-sm btn-outline-primary my-2">Submit</button>
+    </form>
+</section>
+
+<section id="comments">
+    {% for comment in parent_comments %}
+    <div class="card flex-row flex-wrap m-2 p-2">
+        <div class="card-block px-2">
+            <p class="card-text">{{comment.content}}</p>
+            <p class="card-text">
+                <small class="text-muted">
+                    by <a href="/users/{{post.user.id}}">{{comment.user.username}}</a> | 
+                    posted on {{comment.created_at}}
+                </small>
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</section>
+
+{% endblock %}

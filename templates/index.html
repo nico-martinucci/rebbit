@@ -3,14 +3,52 @@
 {% block title %}nebbit{% endblock %}
 
 {% block content %}
-<h1>nebbit</h1>
-
-<a href="/login">Login</a>
-<a href="/add-post">Add a post</a>
-<a href="/add-tag">Add a tag</a>
 
 <section id="posts">
-
+    <!-- <div class="card flex-row flex-wrap">
+        <div class="card-header border-0">
+            <img width="100px" src="https://images.newscientist.com/wp-content/uploads/2020/02/26183019/f0at2n_web.jpg?crop=1:1,smart&width=1200&height=1200&upscale=true" alt="" />
+        </div>
+        <div class="card-block px-2">
+            <h4 class="card-title">Title</h4>
+            <p class="card-text">Description</p>
+            <a href="#" class="btn btn-primary">BUTTON</a>
+        </div>
+        <div class="w-100"></div>
+        <div class="card-footer w-100 text-muted">
+            FOOTER
+        </div>
+    </div> -->
+    {% for post in posts %}
+    <div class="card flex-row flex-wrap m-2 p-2">
+        <div class="card-header border-0 p-0">
+            <img width="80px" src="{{post.url}}" alt="" />
+        </div>
+        <div class="card-block px-2 m-1">
+            <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
+            <p class="card-text">
+                <small class="text-muted">
+                    by <a href="/users/{{post.user.id}}">{{post.user.username}}</a> | 
+                    posted on {{post.created_at}} | 
+                    tagged in {% for tag in post.tag_list %}<a href="#"> {{ tag }} </a>{% endfor %}
+                </small>
+            </p>
+        </div>
+    </div>
+    <!-- <div class="card border-secondary m-2 p-2" style="width: auto;">
+        <div class="row no-gutters">
+            <div class="col-md-1">
+                <img style="max-height: 100px;" src="{{post.url}}" alt="">
+            </div>
+            <div class="col-md-11">
+                <div class="card-body">
+                    <h5 class="card-title">{{post.title}}</h5>
+                    <p class="card-text"><small class="text-muted">by {{post.user.username}}, Posted on {{post.created_at}}</small></p>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    {% endfor %}
 </section>
 
 {% endblock %}

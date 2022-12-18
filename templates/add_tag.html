@@ -3,9 +3,9 @@
 {% block title %}add tag{% endblock %}
 
 {% block content %}
-<h1>add a tag</h1>
+<h3 class="m-2 p-2">add a tag</h3>
 
-<form id="add-tag-form" method="POST">
+<form class="m-2 p-2" id="add-tag-form" method="POST">
     {{ form.hidden_tag() }} <!--add type=hidden form fields -->
 
     {% for field in form
@@ -25,11 +25,7 @@
     <button class="btn btn-primary" type="submit">Submit</button>
 </form>
 
-{% for msg in get_flashed_messages()%}
-  <p>{{msg}}</p>
-{%endfor%}
-
-<h2>current tags</h2>
+<h4 class="m-2 p-2">current tags</h2>
 <ul id="tags">
     {% for tag in tags %}
         <li>{{tag.tag}}</li>
