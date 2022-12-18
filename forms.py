@@ -3,26 +3,33 @@ from wtforms import (StringField, SelectField, TextAreaField,
     SelectMultipleField, PasswordField, EmailField)
 from wtforms.validators import InputRequired, Optional, URL, length
 
+STANDARD_FORM_INPUT_CLASSES = "form-control col-6 mb-3"
+SHORT_FORM_INPUT_CLASSES = "form-control col-3 mb-3"
+
 class AddPostForm(FlaskForm):
     """ Form for adding a new post. """
 
     title = StringField(
         "Title: ",
-        validators=[InputRequired()]
+        validators=[InputRequired()],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
 
     url = StringField(
         "Link: ",
-        validators=[URL(), Optional()]
+        validators=[URL(), Optional()],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
 
     content = TextAreaField(
-        "Content: "
+        "Content: ",
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "rows": "3"}
     )
 
     tag_ids = SelectMultipleField(
         "Tags: ",
-        coerce=int
+        coerce=int,
+        render_kw={"class": SHORT_FORM_INPUT_CLASSES}
     )
 
 
@@ -31,36 +38,52 @@ class AddTagsForm(FlaskForm):
 
     tag = StringField(
         "Tag: ",
-        validators=[InputRequired()]
+        validators=[InputRequired()],
+        render_kw={"class": SHORT_FORM_INPUT_CLASSES}
     )
     
     description = TextAreaField(
         "Description: ",
-        validators=[InputRequired()]
+        validators=[InputRequired()],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "rows": "3"}
     )
 
 
-class RegisterForm(FlaskForm):
+class AddCommentForm(FlaskForm):
+    """ Form for adding a new comment to a post. """
+
+    comment = TextAreaField(
+        "Add a comment: ",
+        validators=[InputRequired()],
+        render_kw={"class": "form-control col-6", "rows": "3"}
+    )
+
+
+class SignupForm(FlaskForm):
     """ Form for registering a new user. """
 
     email = EmailField(
         "Email: ",
-        validators=[InputRequired()]
+        validators=[InputRequired()],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
 
     username = StringField(
         "Username: ",
-        validators=[InputRequired(), length(max=20)]
+        validators=[InputRequired(), length(max=20)],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
 
     password = PasswordField(
         "Password: ",
-        validators=[InputRequired(), length(max=20)]
+        validators=[InputRequired(), length(max=20)],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
 
     password_2 = PasswordField(
         "Re-type Password: ",
-        validators=[InputRequired(), length(max=20)]
+        validators=[InputRequired(), length(max=20)],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
 
 class LoginForm(FlaskForm):
@@ -68,12 +91,14 @@ class LoginForm(FlaskForm):
 
     username = StringField(
         "Username: ",
-        validators=[InputRequired(), length(max=20)]
+        validators=[InputRequired(), length(max=20)],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
 
     password = PasswordField(
         "Password: ",
-        validators=[InputRequired(), length(max=20)]
+        validators=[InputRequired(), length(max=20)],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
     
 class CSRFProtectForm(FlaskForm):

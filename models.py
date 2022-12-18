@@ -40,8 +40,18 @@ class User(db.Model):
         nullable=False
     )
 
+    posts = db.relationship(
+        "Post",
+        backref="user"
+    )
+
+    comments = db.relationship(
+        "Comment",
+        backref="user"
+    )
+
     @classmethod
-    def register(cls, username, email, password):
+    def signup(cls, username, email, password):
         """ Hashes provided password and returns a new User instance. """
         
         hashed = bcrypt.generate_password_hash(password).decode("utf8")
@@ -77,7 +87,7 @@ class Post(db.Model):
         autoincrement=True
     )
 
-    author_id = db.Column(
+    user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id")
     )
@@ -116,6 +126,22 @@ class Post(db.Model):
         backref="posts"
     )
 
+    comments = db.relationship(
+        "Comment",
+        backref="post"
+    )
+
+    @property
+    def tag_list(self):
+        """ Builds comma separated list of tags for the post, capped at 5. """
+
+        tag_list = []
+
+        for tag in self.tags:
+            tag_list.append(tag.tag)
+        
+        return tag_list
+
 
 class Comment(db.Model):
     """ Model for comments table """
@@ -151,7 +177,7 @@ class Comment(db.Model):
         db.Integer
     )
 
-    author = db.Column(
+    user_id = db.Column(
         db.Integer,
         db.ForeignKey("users.id")
     )
