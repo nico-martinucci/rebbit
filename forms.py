@@ -52,10 +52,10 @@ class AddTagsForm(FlaskForm):
 class AddCommentForm(FlaskForm):
     """ Form for adding a new comment to a post. """
 
-    comment = TextAreaField(
+    content = TextAreaField(
         "Add a comment: ",
         validators=[InputRequired()],
-        render_kw={"class": "form-control col-6", "rows": "3"}
+        render_kw={"id": "comment-text", "class": "form-control col-6", "rows": "3"}
     )
 
 

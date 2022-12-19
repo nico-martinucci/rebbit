@@ -200,11 +200,12 @@ def view_post(post_id):
 ###############################################################################
 # API ROUTE
 
-@app.post("/posts/<int:post_id>/add-comment")
+@app.post("/api/posts/<int:post_id>/comment")
 def add_comment(post_id):
     """ POSTs a new comment to the current post. """
 
-    form = AddCommentForm(obj=response.json)
+
+    form = AddCommentForm(obj=request.json)
 
     if form.validate_on_submit():
         new_comment = Comment(
@@ -219,4 +220,4 @@ def add_comment(post_id):
         db.session.commit()
 
         # TODO: finish this vvv
-        return (jsonify())
+        return (jsonify(new_comment.serialize()))

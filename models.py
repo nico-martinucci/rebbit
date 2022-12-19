@@ -187,6 +187,20 @@ class Comment(db.Model):
         db.ForeignKey("posts.id")
     )
 
+    def serialize(self):
+        """ Serializes a comment for jsonification. """
+
+        return {
+            "id": self.id,
+            "content": self.content, # using this
+            "likes": self.likes,
+            "created_at": self.created_at, # using this
+            "parent_comment_id": self.parent_comment_id,
+            "user_id": self.user_id, # using this
+            "username": self.user.username, # using this
+            "post_id": self.post_id
+        }
+
 
 class Tag(db.Model):
     """ Model for tags table """

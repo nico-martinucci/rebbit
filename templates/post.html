@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<section id="post">
+<section id="post" data-post-id="{{post.id}}">
     <div class="card flex-row flex-wrap m-2 p-2">
         <div class="card-header border-0 p-0">
             <img width="300px" src="{{post.url}}" alt="" />
@@ -21,8 +21,8 @@
     </div>
 </section>
 
-<section id="add-comment">
-    <form class="m-2 p-2" id="add-tag-form" method="POST" action="/posts/{{post.id}}/add-comment">
+<section>
+    <form class="m-2 p-2" id="add-tag-form">
         {{ form.hidden_tag() }} <!--add type=hidden form fields -->
     
         {% for field in form
@@ -39,7 +39,7 @@
     
         {% endfor %}
     
-        <button type="submit" class="btn btn-sm btn-outline-primary my-2">Submit</button>
+        <button id="add-comment" type="submit" class="btn btn-sm btn-outline-primary my-2">Submit</button>
     </form>
 </section>
 
