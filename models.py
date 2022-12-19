@@ -187,7 +187,7 @@ class Comment(db.Model):
         db.ForeignKey("posts.id")
     )
 
-    def serialize(self):
+    def serialize(self, html):
         """ Serializes a comment for jsonification. """
 
         return {
@@ -195,10 +195,11 @@ class Comment(db.Model):
             "content": self.content, # using this
             "likes": self.likes,
             "created_at": self.created_at, # using this
-            "parent_comment_id": self.parent_comment_id,
+            "parent_comment_id": self.parent_comment_id, # using this
             "user_id": self.user_id, # using this
             "username": self.user.username, # using this
-            "post_id": self.post_id
+            "post_id": self.post_id,
+            "html": html
         }
 
 

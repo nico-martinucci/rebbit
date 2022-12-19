@@ -21,7 +21,7 @@
     </div>
 </section>
 
-<article id="add-parent-comment" data-parent-comment-id="0">
+<article id="add-parent-comment" data-parent-comment-id="-1">
     <form class="m-2 p-2">
         {{ form.hidden_tag() }} <!--add type=hidden form fields -->
     
@@ -45,7 +45,7 @@
 
 <section id="comments">
     {% for comment in parent_comments %}
-    <article class="card flex-row flex-wrap m-2 p-2" data-parent-comment-id="{{comment.parent_comment_id}}">
+    <article class="card flex-row flex-wrap m-2 p-2" data-parent-comment-id="{{comment.id}}">
         <div class="card-block px-2">
             <p class="card-text my-0">{{comment.content}}</p>
             <p class="card-text my-0">
@@ -56,10 +56,11 @@
             </p>
             <p class="card-text my-0">
                 <small>
-                    <button id="show-reply-form" class="btn btn-sm btn-link">reply</button>
+                    <button class="show-reply-form btn btn-sm btn-link">reply</button>
+                    <button class="show-replies btn btn-sm btn-link">show replies</button>
                 </small>
             </p>
-            <form class="m-2 p-2">
+            <form class="m-2 p-2 d-none">
                 {{ form.hidden_tag() }} <!--add type=hidden form fields -->
     
                 {% for field in form
@@ -77,9 +78,9 @@
                 {% endfor %}
             
                 <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-2">submit</button>
-                <button class="add-comment btn btn-sm btn-outline-dark my-2">cancel</button>
+                <button class="close-reply-form btn btn-sm btn-outline-dark my-2">cancel</button>
             </form>
-            <div id="replies">
+            <div class="replies">
                 
             </div>
         </div>

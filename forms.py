@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField, SelectField, TextAreaField, 
-    SelectMultipleField, PasswordField, EmailField)
+    SelectMultipleField, PasswordField, EmailField, HiddenField)
 from wtforms.validators import InputRequired, Optional, URL, length
 
 STANDARD_FORM_INPUT_CLASSES = "form-control col-6 mb-3"
@@ -55,9 +55,13 @@ class AddCommentForm(FlaskForm):
     content = TextAreaField(
         "Add a comment: ",
         validators=[InputRequired()],
-        render_kw={"id": "comment-text", "class": "form-control", "rows": "3"}
+        render_kw={"class": "comment-text form-control", "rows": "3"}
     )
 
+    parent_comment_id = HiddenField(
+        "parent_comment_id",
+        validators=[InputRequired()],
+    )
 
 class SignupForm(FlaskForm):
     """ Form for registering a new user. """

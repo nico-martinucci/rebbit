@@ -4,42 +4,55 @@ const API_ENDPOINT_URL = "http://localhost:5000/api";
 const mytoken = "{{ csrf_token() }}";
 
 // change this to a listener on the entire page, for .add-comment clicks
-$(".add-comment").on("click", handleNewCommentFormSubmit);
+$("body").on("click", ".add-comment", handleNewCommentFormSubmit);
 
 async function handleNewCommentFormSubmit(event) {
     event.preventDefault();
 
+    const $commentBox = $(event.target).prev().children(".comment-text")
+
     const post_id = $("#post").data("post-id");
-    console.log(post_id)
+    const parent_comment_id = $commentBox.closest("article").data("parent-comment-id")
 
     const response = await axios({
         url: `${API_ENDPOINT_URL}/posts/${post_id}/comment`,
         method: "POST",
         data: {
-            content: $("#comment-text").val(),
+            content: $commentBox.val(),
+            parent_comment_id: parent_comment_id,
             csrf_token: mytoken
         }
     })
 
-    console.log(response);
-
     const comment = response.data;
+    console.log(comment);
 
-    const $newComment = $(`
-        <div class="card flex-row flex-wrap m-2 p-2">
-            <div class="card-block px-2">
-                <p class="card-text">${comment.content}</p>
-                <p class="card-text">
-                    <small class="text-muted">
-                        by <a href="/users/${comment.user_id}">${comment.username}</a> | 
-                        posted on ${comment.created_at}
-                    </small>
-                </p>
-            </div>
-        </div>
-    `)
+    if (comment.parent_comment_id === -1) {
+        $("#comments").prepend($(comment.html));
+    } else {
+        $commentBox.closest("form").next(".replies").prepend($(comment.html));
+        
+        $(event.target).parent().prev("p").toggleClass("d-none");
+        $(event.target).parent().toggleClass("d-none");
+    }
 
-    $("#comments").prepend($newComment)
-
+    $commentBox.val("");
 }
 
+$("body").on("click", ".show-reply-form", showCommentReplyForm);
+
+function showCommentReplyForm(event) {
+    event.preventDefault();
+
+    $(event.target).closest("p").next("form").toggleClass("d-none");
+    $(event.target).closest("p").toggleClass("d-none");
+}
+
+$("body").on("click", ".close-reply-form", closeReplyForm);
+
+function closeReplyForm(event) {
+    event.preventDefault();
+
+    $(event.target).parent().prev("p").toggleClass("d-none");
+    $(event.target).parent().toggleClass("d-none");
+}

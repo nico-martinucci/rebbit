@@ -186,7 +186,7 @@ def view_post(post_id):
     parent_comments = [
         comment 
         for comment in post.comments 
-        if comment.parent_comment_id is None
+        if comment.parent_comment_id == -1
     ]
 
     return render_template(
@@ -206,12 +206,11 @@ def add_comment(post_id):
 
 
     form = AddCommentForm(obj=request.json)
-
     if form.validate_on_submit():
         new_comment = Comment(
             content=form.content.data,
             likes=1,
-            parent_comment_id=None,
+            parent_comment_id=form.parent_comment_id.data,
             user_id=g.user.id,
             post_id=post_id
         )
@@ -219,5 +218,13 @@ def add_comment(post_id):
         db.session.add(new_comment)
         db.session.commit()
 
+        html = render_template(
+            "comment.html", 
+            comment=new_comment, 
+            post_id=post_id, 
+            form=AddCommentForm()
+        )
+        response = jsonify(new_comment.serialize(html))
+
         # TODO: finish this vvv
-        return (jsonify(new_comment.serialize()))
+        return (response)
