@@ -221,10 +221,32 @@ def add_comment(post_id):
         html = render_template(
             "comment.html", 
             comment=new_comment, 
-            post_id=post_id, 
             form=AddCommentForm()
         )
-        response = jsonify(new_comment.serialize(html))
+
+        response = jsonify(new_comment.generateHtml(html))
 
         # TODO: finish this vvv
         return (response)
+
+@app.get("/api/comments/<int:comment_id>/children")
+def get_children_comments(comment_id):
+    """ 
+    Get all children (not grand- or below) comments 
+    for provided comment id. 
+    """
+
+    children_comments = Comment.query.filter(Comment.parent_comment_id == comment_id)
+
+    comments = [
+        comment.generateHtml(
+            render_template(
+                "comment.html", 
+                comment=comment, 
+                form=AddCommentForm()
+            )
+        )
+        for comment in children_comments
+    ]
+
+    return (jsonify(comments))

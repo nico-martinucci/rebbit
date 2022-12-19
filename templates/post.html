@@ -21,7 +21,7 @@
     </div>
 </section>
 
-<article id="add-parent-comment" data-parent-comment-id="-1">
+<article id="add-parent-comment" data-comment-id="-1">
     <form class="m-2 p-2">
         {{ form.hidden_tag() }} <!--add type=hidden form fields -->
     
@@ -45,12 +45,12 @@
 
 <section id="comments">
     {% for comment in parent_comments %}
-    <article class="card flex-row flex-wrap m-2 p-2" data-parent-comment-id="{{comment.id}}">
+    <article class="card flex-row flex-wrap m-2 p-2" data-comment-id="{{comment.id}}">
         <div class="card-block px-2">
             <p class="card-text my-0">{{comment.content}}</p>
             <p class="card-text my-0">
                 <small class="text-muted">
-                    by <a href="/users/{{post.user.id}}">{{comment.user.username}}</a> | 
+                    by <a href="/users/{{comment.user.id}}">{{comment.user.username}}</a> | 
                     posted on {{comment.created_at}}
                 </small>
             </p>

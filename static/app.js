@@ -11,15 +11,15 @@ async function handleNewCommentFormSubmit(event) {
 
     const $commentBox = $(event.target).prev().children(".comment-text")
 
-    const post_id = $("#post").data("post-id");
-    const parent_comment_id = $commentBox.closest("article").data("parent-comment-id")
+    const postId = $("#post").data("post-id");
+    const parentCommentId = $commentBox.closest("article").data("comment-id")
 
     const response = await axios({
-        url: `${API_ENDPOINT_URL}/posts/${post_id}/comment`,
+        url: `${API_ENDPOINT_URL}/posts/${postId}/comment`,
         method: "POST",
         data: {
             content: $commentBox.val(),
-            parent_comment_id: parent_comment_id,
+            parent_comment_id: parentCommentId,
             csrf_token: mytoken
         }
     })
@@ -52,7 +52,27 @@ $("body").on("click", ".close-reply-form", closeReplyForm);
 
 function closeReplyForm(event) {
     event.preventDefault();
-
+    
     $(event.target).parent().prev("p").toggleClass("d-none");
     $(event.target).parent().toggleClass("d-none");
+}
+
+$("body").on("click", ".show-replies", handleGetCommentReplies);
+
+async function handleGetCommentReplies(event) {
+    event.preventDefault();
+
+    const commentId = $(event.target).closest("article").data("comment-id");
+
+    const response = await axios({
+        url: `${API_ENDPOINT_URL}/comments/${commentId}/children`,
+        method: "GET"
+    })
+
+    const comments = response.data;
+    const $replies = $(event.target).closest("p").nextAll(".replies");
+
+    for (let comment of comments) {
+        $replies.append($(comment.html));
+    }
 }

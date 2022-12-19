@@ -60,7 +60,7 @@ class AddCommentForm(FlaskForm):
 
     parent_comment_id = HiddenField(
         "parent_comment_id",
-        validators=[InputRequired()],
+        validators=[InputRequired()]
     )
 
 class SignupForm(FlaskForm):
