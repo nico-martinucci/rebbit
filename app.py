@@ -1,7 +1,8 @@
 """ nebbit application """
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, redirect, render_template, flash, session, g
+from flask import (Flask, request, redirect, render_template, flash, session, g, 
+    jsonify)
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.exc import IntegrityError
 # from flask_debugtoolbar import DebugToolbarExtension
@@ -10,6 +11,9 @@ from forms import (AddPostForm, AddTagsForm, AddCommentForm, LoginForm,
     SignupForm, CSRFProtectForm)
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
+csrf.init_app(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///nebbit'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -200,6 +204,19 @@ def view_post(post_id):
 def add_comment(post_id):
     """ POSTs a new comment to the current post. """
 
-    form = AddCommentForm()
+    form = AddCommentForm(obj=response.json)
 
-    
+    if form.validate_on_submit():
+        new_comment = Comment(
+            content=form.content.data,
+            likes=1,
+            parent_comment_id=None,
+            user_id=g.user.id,
+            post_id=post_id
+        )
+
+        db.session.add(new_comment)
+        db.session.commit()
+
+        # TODO: finish this vvv
+        return (jsonify())
