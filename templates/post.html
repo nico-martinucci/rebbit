@@ -21,8 +21,8 @@
     </div>
 </section>
 
-<section>
-    <form class="m-2 p-2" id="add-tag-form">
+<article id="add-parent-comment" data-parent-comment-id="0">
+    <form class="m-2 p-2">
         {{ form.hidden_tag() }} <!--add type=hidden form fields -->
     
         {% for field in form
@@ -39,23 +39,51 @@
     
         {% endfor %}
     
-        <button id="add-comment" type="submit" class="btn btn-sm btn-outline-primary my-2">Submit</button>
+        <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-2">submit</button>
     </form>
-</section>
+</article>
 
 <section id="comments">
     {% for comment in parent_comments %}
-    <div class="card flex-row flex-wrap m-2 p-2">
+    <article class="card flex-row flex-wrap m-2 p-2" data-parent-comment-id="{{comment.parent_comment_id}}">
         <div class="card-block px-2">
-            <p class="card-text">{{comment.content}}</p>
-            <p class="card-text">
+            <p class="card-text my-0">{{comment.content}}</p>
+            <p class="card-text my-0">
                 <small class="text-muted">
                     by <a href="/users/{{post.user.id}}">{{comment.user.username}}</a> | 
                     posted on {{comment.created_at}}
                 </small>
             </p>
+            <p class="card-text my-0">
+                <small>
+                    <button id="show-reply-form" class="btn btn-sm btn-link">reply</button>
+                </small>
+            </p>
+            <form class="m-2 p-2">
+                {{ form.hidden_tag() }} <!--add type=hidden form fields -->
+    
+                {% for field in form
+                if field.widget.input_type != 'hidden' %}
+            
+                <div>
+                    {{ field.label }}
+                    {{ field }}
+            
+                    {% for error in field.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+            
+                {% endfor %}
+            
+                <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-2">submit</button>
+                <button class="add-comment btn btn-sm btn-outline-dark my-2">cancel</button>
+            </form>
+            <div id="replies">
+                
+            </div>
         </div>
-    </div>
+    </article>
     {% endfor %}
 </section>
 

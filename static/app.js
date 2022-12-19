@@ -3,7 +3,8 @@
 const API_ENDPOINT_URL = "http://localhost:5000/api";
 const mytoken = "{{ csrf_token() }}";
 
-$("#add-comment").on("click", handleNewCommentFormSubmit);
+// change this to a listener on the entire page, for .add-comment clicks
+$(".add-comment").on("click", handleNewCommentFormSubmit);
 
 async function handleNewCommentFormSubmit(event) {
     event.preventDefault();
@@ -42,33 +43,3 @@ async function handleNewCommentFormSubmit(event) {
 
 }
 
-/* 
-async function handleStarClick(event) {
-    event.preventDefault();
-
-    const $star = $(event.target)
-    const message_id = $star.closest("li").attr("id");
-
-    const response = await axios({
-        url: `${API_ENDPOINT_URL}/messages/${message_id}/likes`,
-        method: "POST",
-        data: {
-            csrf_token: mytoken
-        }
-    })
-
-    $star.toggleClass("bi-star").toggleClass("bi-star-fill")
-}
-
-method="POST" action="/posts/{{post.id}}/add-comment"
-
-return {
-            "id": self.id,
-            "content": self.content,
-            "likes": self.likes,
-            "created_at": self.created_at,
-            "parent_comment_id": self.parent_comment_id,
-            "user_id": self.user_id,
-            "post_id": self.post_id
-        }
-*/

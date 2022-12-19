@@ -55,7 +55,7 @@ class AddCommentForm(FlaskForm):
     content = TextAreaField(
         "Add a comment: ",
         validators=[InputRequired()],
-        render_kw={"id": "comment-text", "class": "form-control col-6", "rows": "3"}
+        render_kw={"id": "comment-text", "class": "form-control", "rows": "3"}
     )
 
 
