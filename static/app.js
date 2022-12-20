@@ -22,17 +22,20 @@ async function handleNewCommentFormSubmit(event) {
     const commentText = $commentBox.val();
     const parentCommentId = $commentBox.closest("article").data("comment-id")
     
-    const comment_data = await postNewComment(postId, commentText, parentCommentId);
+    const commentData = await postNewComment(postId, commentText, parentCommentId);
 
-    updatedDOMWithNewComment(comment_data, $submitButton);
+    updatedDOMWithNewComment(commentData.html, parentCommentId, $submitButton);
     
 }
 
 /**
- * 
- * @param {*} postId 
- * @param {*} commentText 
- * @param {*} parentCommentId 
+ * handles AJAX request for posting a new comment; gets back HTML of the new 
+ * comment to add to the DOM
+ * @param {integer} postId - ID of the post that the comment is on
+ * @param {string} commentText - text entered into the comment box
+ * @param {integer} parentCommentId - ID of the parent comment being replied to;
+ * -1 if a top-level reply to the post
+ * @returns data object with HTML to inject and parent comment ID 
  */
 async function postNewComment(postId, commentText, parentCommentId) {
     const response = await axios({
@@ -49,17 +52,21 @@ async function postNewComment(postId, commentText, parentCommentId) {
 }
 
 /**
- * 
- * @param {*} comment_data 
- * @param {*} $submitButton 
+ * adds new comment to the DOM; if top-level, adds it to the top of the comments
+ * section; if a reply, adds it to the replies section of the comment replied to
+ * @param {string} commentHtml - injectable HTML for the comment
+ * @param {integer} parentCommentId - ID of the parent comment being replied to;
+ * -1 if a top-level reply to the post
+ * @param {jQuery object} $submitButton - target of the click; used to find 
+ * replies section of comment for reply comments
  */
-function updatedDOMWithNewComment(comment_data, $submitButton) {
+function updatedDOMWithNewComment(commentHtml, parentCommentId, $submitButton) {
     const $commentBox = $submitButton.prev().children(".comment-text")
     
-    if (comment_data.parent_comment_id === -1) {
-        $("#comments").prepend($(comment_data.html));
+    if (parentCommentId === -1) {
+        $("#comments").prepend($(commentHtml));
     } else {
-        $commentBox.closest("form").next(".replies").prepend($(comment_data.html));
+        $commentBox.closest("form").next(".replies").prepend($(commentHtml));
         
         $submitButton.parent().prev("p").toggleClass("d-none");
         $submitButton.parent().toggleClass("d-none");
@@ -70,25 +77,28 @@ function updatedDOMWithNewComment(comment_data, $submitButton) {
 
 $("body").on("click", ".add-comment", handleNewCommentFormSubmit);
 
+
 // *****************************************************************************
 // LISTNERS/FUNCTIONS FOR COMMENT REPLY FORMS/LOADING 
 
 /**
- * 
- * @param {*} event 
+ * callback for clicking "reply" on a comment; shows reply form and hides links
+ * @param {event} event 
  */
 function showCommentReplyForm(event) {
     event.preventDefault();
     
+    // show reply form
     $(event.target).closest("p").next("form").toggleClass("d-none");
+    // hide list of actions at bottom of comment
     $(event.target).closest("p").toggleClass("d-none");
 }
 
 $("body").on("click", ".show-reply-form", showCommentReplyForm);
 
 /**
- * 
- * @param {*} event 
+ * callback for clicking "cancel" on reply form; hides form and shows links
+ * @param {event} event 
  */
 function closeReplyForm(event) {
     event.preventDefault();
@@ -100,22 +110,41 @@ function closeReplyForm(event) {
 $("body").on("click", ".close-reply-form", closeReplyForm);
 
 /**
- * 
- * @param {*} event 
+ * callback/controller for getting a list of first-level comment replies and 
+ * adding them to the DOM under the correct comment.
+ * @param {event} event 
  */
 async function handleGetCommentReplies(event) {
     event.preventDefault();
     
     const commentId = $(event.target).closest("article").data("comment-id");
-    
+    const comments = await getComments(commentId);
+
+    updateDOMWithCommentReplies($(event.target), comments);
+}
+
+/**
+ * handles AJAX request for getting a list of first-level comment replies
+ * @param {integer} commentId - id of comment for which to get replies
+ * @returns array of injectable HTML for each comment reply
+ */
+async function getComments(commentId) {
     const response = await axios({
         url: `${API_ENDPOINT_URL}/comments/${commentId}/children`,
         method: "GET"
     })
     
-    const comments = response.data;
-    const $replies = $(event.target).closest("p").nextAll(".replies");
-    
+    return response.data;
+}
+
+/**
+ * updates DOM with list of comment replies
+ * @param {jQuery object} target - the clicked submit button; used to find the
+ * correct replies section
+ * @param {array} comments - array of injectable HTML for each comment
+ */
+function updateDOMWithCommentReplies(target, comments) {
+    const $replies = target.closest("p").nextAll(".replies");
     $replies.empty();
     
     for (let comment of comments) {

@@ -202,10 +202,13 @@ def view_post(post_id):
 
 @app.post("/api/posts/<int:post_id>/comment")
 def add_comment(post_id):
-    """ POSTs a new comment to the current post. """
-
+    """ 
+    POSTs a new comment to the current post; 
+    returns an injectable HTML snippet of the comment. 
+    """
 
     form = AddCommentForm(obj=request.json)
+
     if form.validate_on_submit():
         new_comment = Comment(
             content=form.content.data,
@@ -218,16 +221,16 @@ def add_comment(post_id):
         db.session.add(new_comment)
         db.session.commit()
 
-        html = render_template(
-            "comment.html", 
-            comment=new_comment, 
-            form=AddCommentForm()
-        )
+        response = {
+            "html": render_template(
+                "comment.html", 
+                comment=new_comment, 
+                form=AddCommentForm()
+            )
+        }
 
-        response = jsonify(new_comment.serializeHtml(html))
+        return (jsonify(response))
 
-        # TODO: finish this vvv
-        return (response)
 
 @app.get("/api/comments/<int:comment_id>/children")
 def get_children_comments(comment_id):
@@ -239,13 +242,13 @@ def get_children_comments(comment_id):
     children_comments = Comment.query.filter(Comment.parent_comment_id == comment_id)
 
     comments = [
-        comment.serializeHtml(
-            render_template(
+        {
+            "html": render_template(
                 "comment.html", 
                 comment=comment, 
                 form=AddCommentForm()
             )
-        )
+        }
         for comment in children_comments
     ]
 

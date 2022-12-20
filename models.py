@@ -187,14 +187,6 @@ class Comment(db.Model):
         db.ForeignKey("posts.id")
     )
 
-    def serializeHtml(self, html):
-        """ Generates an html snippet for the comment. """
-
-        return {
-            "parent_comment_id": self.parent_comment_id, # using this
-            "html": html # using this
-        }
-
 
 class Tag(db.Model):
     """ Model for tags table """
