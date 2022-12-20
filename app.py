@@ -68,6 +68,8 @@ def login_user():
         user = User.authenticate(username=username, password=password)
 
         if user:
+            session[CURR_USER_KEY] = user.id
+
             flash(f"welcome, {user.username}!", "success")
             return redirect("/")
         else:
@@ -105,12 +107,40 @@ def signup_user():
     return render_template("signup.html", form=form)
 
 
+@app.post("/logout")
+def logout_user():
+    """ Logs out the current user. """
+
+    form = g.csrf_form
+
+    if form.validate_on_submit():
+        if CURR_USER_KEY in session:
+            del session[CURR_USER_KEY]
+
+        flash("You have logged out.", "success")
+        return redirect("/")
+
+
+@app.get("/users/<username>")
+def get_user(username):
+    """ Gets page for a specific user. """
+
+    user = User.query.filter_by(username=username).one()
+    posts = user.posts
+
+    return render_template("user.html", user=user, posts=posts)
+
+
 @app.route("/add-tag", methods=["GET", "POST"])
 def add_new_tag():
     """ 
     On "GET", shows form to add a new tag; 
     on "POST", adds new tag to the database. 
     """
+
+    if not g.user:
+        flash("you must be signed in to add tags.", "warning")
+        return redirect("/login")
 
     form = AddTagsForm()
     tags = Tag.query.all()
@@ -129,6 +159,14 @@ def add_new_tag():
     else:
         return render_template("add_tag.html", form=form, tags=tags)
 
+@app.get("/tags/<tag_name>")
+def show_tag_detail(tag_name):
+    """ Shows details (description and posts) for passed tag. """
+
+    tag = Tag.query.filter(Tag.tag == tag_name).one()
+    
+    return render_template("tag_detail.html", tag=tag, posts=tag.posts)
+
 
 @app.route("/add-post", methods=["GET", "POST"])
 def add_new_post():
@@ -136,6 +174,10 @@ def add_new_post():
     On "GET", shows form to add a new post; 
     on "POST", adds new post to the database. 
     """
+
+    if not g.user:
+        flash("you must be signed in to post.", "warning")
+        return redirect("/login")
 
     form = AddPostForm()
     current_tags = Tag.query.all()
@@ -190,7 +232,7 @@ def view_post(post_id):
     ]
 
     return render_template(
-        "post.html", 
+        "post_detail.html", 
         form=form,
         post=post, 
         parent_comments=parent_comments
@@ -198,7 +240,7 @@ def view_post(post_id):
 
 
 ###############################################################################
-# API ROUTE
+# API ROUTES
 
 @app.post("/api/posts/<int:post_id>/comment")
 def add_comment(post_id):

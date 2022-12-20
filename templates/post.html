@@ -1,91 +1,15 @@
-{% extends 'base.html' %}
-
-{% block title %}nebbit{% endblock %}
-
-{% block content %}
-
-<section id="post" data-post-id="{{post.id}}">
-    <div class="card flex-row flex-wrap m-2 p-2">
-        <div class="card-header border-0 p-0">
-            <img width="300px" src="{{post.url}}" alt="" />
-        </div>
-        <div class="card-block px-2 m-2">
-            <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
-            <p class="card-text"><small class="text-muted">
+<div class="card flex-row flex-wrap m-2 p-2">
+    <div class="card-header border-0 p-0">
+        <img width="80px" src="{{post.url}}" alt="" />
+    </div>
+    <div class="card-block px-2 m-1">
+        <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
+        <p class="card-text">
+            <small class="text-muted">
                 by <a href="/users/{{post.user.id}}">{{post.user.username}}</a> | 
                 posted on {{post.created_at}} | 
-                tagged in {% for tag in post.tag_list %}<a href="#"> {{ tag }} </a>{% endfor %}</small>
-            </p>
-            <p class="card-text">{{post.content}}</p>
-        </div>
+                tagged in {% for tag in post.tag_list %}<a href="/tags/{{tag}}"> {{ tag }} </a>{% endfor %}
+            </small>
+        </p>
     </div>
-</section>
-
-<article id="add-parent-comment" data-comment-id="-1">
-    <form class="m-2 p-2">
-        {{ form.hidden_tag() }} <!--add type=hidden form fields -->
-    
-        {% for field in form
-        if field.widget.input_type != 'hidden' %}
-    
-        <div>
-            {{ field.label }}
-            {{ field }}
-    
-            {% for error in field.errors %}
-            {{ error }}
-            {% endfor %}
-        </div>
-    
-        {% endfor %}
-    
-        <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-2">submit</button>
-    </form>
-</article>
-
-<section id="comments">
-    {% for comment in parent_comments %}
-    <article class="card flex-row flex-wrap m-2 p-2" data-comment-id="{{comment.id}}">
-        <div class="card-block px-2">
-            <p class="card-text my-0">{{comment.content}}</p>
-            <p class="card-text my-0">
-                <small class="text-muted">
-                    by <a href="/users/{{comment.user.id}}">{{comment.user.username}}</a> | 
-                    posted on {{comment.created_at}}
-                </small>
-            </p>
-            <p class="card-text my-0">
-                <small>
-                    <button class="show-reply-form btn btn-sm btn-link">reply</button>
-                    <button class="show-replies btn btn-sm btn-link">show replies</button>
-                </small>
-            </p>
-            <form class="m-2 p-2 d-none">
-                {{ form.hidden_tag() }} <!--add type=hidden form fields -->
-    
-                {% for field in form
-                if field.widget.input_type != 'hidden' %}
-            
-                <div>
-                    {{ field.label }}
-                    {{ field }}
-            
-                    {% for error in field.errors %}
-                    {{ error }}
-                    {% endfor %}
-                </div>
-            
-                {% endfor %}
-            
-                <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-2">submit</button>
-                <button class="close-reply-form btn btn-sm btn-outline-dark my-2">cancel</button>
-            </form>
-            <div class="replies">
-                
-            </div>
-        </div>
-    </article>
-    {% endfor %}
-</section>
-
-{% endblock %}
+</div>

@@ -33,12 +33,24 @@
           </li>
         </ul>
         <ul class="navbar-nav ml-auto">
+          {% if not g.user %}
           <li class="nav-item active">
             <a class="nav-link" href="/login">Login<span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item active">
             <a class="nav-link" href="/signup">Signup<span class="sr-only">(current)</span></a>
           </li>
+          {% else %}
+          <li class="nav-item active">
+            <a class="nav-link" href="/users/{{g.user.username}}">{{g.user.username}}<span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <form action="/logout" method="POST">
+              {{ g.csrf_form.hidden_tag() }}
+              <button class="btn btn-link nav-link" href="/logout">Logout<span class="sr-only">(current)</span></button>
+            </form>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </nav>

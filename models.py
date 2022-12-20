@@ -171,10 +171,9 @@ class Comment(db.Model):
         default=db.func.now()
     )
 
-    # not setting up as FK since this could be a parent comment, in which case
-    # this would be "None"
     parent_comment_id = db.Column(
-        db.Integer
+        db.Integer,
+        nullable=False
     )
 
     user_id = db.Column(
@@ -185,6 +184,14 @@ class Comment(db.Model):
     post_id = db.Column(
         db.Integer,
         db.ForeignKey("posts.id")
+    )
+
+    parent_comment = db.relationship(
+        "Comment",
+        foreign_keys=[parent_comment_id],
+        primaryjoin="Comment.id == Comment.parent_comment_id",
+        remote_side=[id],
+        backref="replies"
     )
 
 

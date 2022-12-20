@@ -4,7 +4,10 @@
 
 {% block content %}
 
-<section id="posts">
+<h3 class="m-2 p-2">{{tag.tag}}</h3>
+<h6 class="m-2 p-2">{{tag.description}}</h6>
+
+<section>
     {% for post in posts %}
         {% include "post.html" %}
     {% endfor %}
