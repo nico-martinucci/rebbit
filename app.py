@@ -224,7 +224,7 @@ def add_comment(post_id):
             form=AddCommentForm()
         )
 
-        response = jsonify(new_comment.generateHtml(html))
+        response = jsonify(new_comment.serializeHtml(html))
 
         # TODO: finish this vvv
         return (response)
@@ -239,7 +239,7 @@ def get_children_comments(comment_id):
     children_comments = Comment.query.filter(Comment.parent_comment_id == comment_id)
 
     comments = [
-        comment.generateHtml(
+        comment.serializeHtml(
             render_template(
                 "comment.html", 
                 comment=comment, 
