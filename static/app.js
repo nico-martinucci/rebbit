@@ -176,3 +176,33 @@ async function getUrlData() {
 
     console.log(response);
 }
+
+
+// *****************************************************************************
+// LISTENERS FOR RESPONSIVE ELEMENTS
+
+
+function toggleVoteIconOn(event) {
+    const icon = $(event.target);
+    if (icon.hasClass("bi-arrow-up-circle")) {
+        $(event.target).toggleClass("bi-arrow-up-circle").toggleClass("bi-arrow-up-circle-fill")
+    }
+    if (icon.hasClass("bi-arrow-down-circle")) {
+        $(event.target).toggleClass("bi-arrow-down-circle").toggleClass("bi-arrow-down-circle-fill")
+    }
+}
+
+$("body").on("mouseover", ".vote", toggleVoteIconOn)
+
+
+function toggleVoteIconOff(event) {
+    const icon = $(event.target);
+    if (icon.hasClass("bi-arrow-up-circle-fill")) {
+        $(event.target).toggleClass("bi-arrow-up-circle").toggleClass("bi-arrow-up-circle-fill")
+    }
+    if (icon.hasClass("bi-arrow-down-circle-fill")) {
+        $(event.target).toggleClass("bi-arrow-down-circle").toggleClass("bi-arrow-down-circle-fill")
+    }
+}
+
+$("body").on("mouseout", ".vote", toggleVoteIconOff)
