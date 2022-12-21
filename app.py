@@ -49,6 +49,53 @@ def create_csrf_only_form():
     g.csrf_form = CSRFProtectForm()
 
 
+@app.before_request
+def get_list_of_liked_content():
+    """ Gets lists of liked comments and posts for current user. """
+
+    if g.user:
+        g.liked_post_ids = [
+            post.id
+            for post in g.user.voted_posts
+            if UserPostVote.query.filter(
+                UserPostVote.post_id == post.id,
+                UserPostVote.user_id == g.user.id,
+                UserPostVote.score == 1
+            ).one_or_none()
+        ]
+
+        g.disliked_post_ids = [
+            post.id
+            for post in g.user.voted_posts
+            if UserPostVote.query.filter(
+                UserPostVote.post_id == post.id,
+                UserPostVote.user_id == g.user.id,
+                UserPostVote.score == -1
+            ).one_or_none()
+        ]
+
+        g.liked_comment_ids = [
+            comment.id
+            for comment in g.user.voted_comments
+            if UserCommentVote.query.filter(
+                UserCommentVote.comment_id == comment.id,
+                UserCommentVote.user_id == g.user.id,
+                UserCommentVote.score == 1
+            ).one_or_none()
+        ]
+
+        g.disliked_comment_ids = [
+            comment.id
+            for comment in g.user.voted_comments
+            if UserCommentVote.query.filter(
+                UserCommentVote.comment_id == comment.id,
+                UserCommentVote.user_id == g.user.id,
+                UserCommentVote.score == -1
+            ).one_or_none()
+        ]
+
+
+
 @app.get("/")
 def show_home_page():
     """ Renders home page of posts. """

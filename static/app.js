@@ -227,8 +227,18 @@ async function postUpvoteDownvote(event) {
         }
     })
 
-    const $voteTotal = $voteButton.parent().children(".vote-total");
+    const $voteTotal = $voteButton.siblings(".vote-total");
     $voteTotal.html(`<b>${response.data.score}</b>`);
+
+    if ($voteButton.hasClass("bi-arrow-up-circle-fill") || $voteButton.hasClass("bi-arrow-up-circle")) {
+        $voteButton.toggleClass("text-primary");
+        $voteButton.siblings(".bi-arrow-down-circle").removeClass("text-danger")
+    }
+    
+    if ($voteButton.hasClass("bi-arrow-down-circle-fill") || $voteButton.hasClass("bi-arrow-down-circle")) {
+        $voteButton.toggleClass("text-danger");
+        $voteButton.siblings(".bi-arrow-up-circle").removeClass("text-primary")
+    }
 }
 
 $("body").on("click", ".vote", postUpvoteDownvote)

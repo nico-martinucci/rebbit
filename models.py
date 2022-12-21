@@ -167,7 +167,7 @@ class Post(db.Model):
             func.sum(UserPostVote.score)).filter(UserPostVote.post_id == self.id
         )
 
-        return total_score.one()[0]
+        return total_score.one()[0] or 0
 
 
 class Comment(db.Model):
@@ -223,7 +223,7 @@ class Comment(db.Model):
             func.sum(UserCommentVote.score)).filter(UserCommentVote.comment_id == self.id
         )
 
-        return total_score.one()[0]
+        return total_score.one()[0] or 0
 
 
 class Tag(db.Model):

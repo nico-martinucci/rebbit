@@ -6,9 +6,17 @@
         <a style="color: inherit" href="{{post.url}}"><h5 class="card-title">{{post.title}}</h5></a>
         <p class="card-text">
             <small class="text-muted">
+                {% if post.id in g.liked_post_ids %}
+                <i class="vote bi bi-arrow-up-circle text-primary" data-vote="1"></i>
+                {% else %}
                 <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
+                {% endif %}
                 <span class="vote-total"><b>{{post.get_total_score}}</b></span>
+                {% if post.id in g.disliked_post_ids %}
+                <i class="vote bi bi-arrow-down-circle text-danger" data-vote="-1"></i> | 
+                {% else %}
                 <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
+                {% endif %}
                 <a href="/posts/{{post.id}}">comments</a> | 
                 posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
                 by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
