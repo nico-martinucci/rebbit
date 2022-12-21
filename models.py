@@ -108,6 +108,10 @@ class Post(db.Model):
         db.Text
     )
 
+    img_url = db.Column(
+        db.Text
+    )
+
     created_at = db.Column(
         db.DateTime,
         nullable=False,

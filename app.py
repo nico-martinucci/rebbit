@@ -1,5 +1,6 @@
 """ nebbit application """
 import os
+import requests
 from dotenv import load_dotenv
 from flask import (Flask, request, redirect, render_template, flash, session, g, 
     jsonify)
@@ -9,6 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from models import db, connect_db, User, Post, Comment, Tag
 from forms import (AddPostForm, AddTagsForm, AddCommentForm, LoginForm, 
     SignupForm, CSRFProtectForm)
+from bs4 import BeautifulSoup as bs
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
@@ -188,7 +190,8 @@ def add_new_post():
 
     if form.validate_on_submit():
         title = form.title.data
-        url = form.url.data or PLACEHOLDER_IMAGE_URL
+        url = form.url.data
+        img_url = form.img_url.data or PLACEHOLDER_IMAGE_URL
         content = form.content.data
         tag_ids = form.tag_ids.data
 
@@ -198,6 +201,7 @@ def add_new_post():
             title=title, 
             content=content, 
             url=url, 
+            img_url=img_url, 
             likes=1
         )
 
@@ -295,3 +299,28 @@ def get_children_comments(comment_id):
     ]
 
     return (jsonify(comments))
+
+@app.get("/api/posts/get-data")
+def get_url_data():
+    """ Get data (h1 and image) for provided link; return them back. """
+
+    url = request.args["url"]
+    page = requests.get(url)
+
+    soup = bs(page.text, 'html.parser')
+
+    # soup.h1.text
+    # soup.img.attrs["src"]
+    # find nav; find next sibling; find first image in that sibling
+
+    img_url = soup.img.attrs["src"]
+
+    if soup.nav:
+        img_url = soup.nav.find_next_sibling().img["src"]
+
+    response = {
+        "h1": soup.h1.text,
+        "img_url": img_url
+    }
+
+    return jsonify(response)

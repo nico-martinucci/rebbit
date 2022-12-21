@@ -1,12 +1,15 @@
 <div class="card flex-row flex-wrap m-2 p-2">
     <div class="card-header border-0 p-0">
-        <img width="80px" src="{{post.url}}" alt="" />
+        <img width="80px" src="{{post.img_url}}" alt="" />
     </div>
     <div class="card-block px-2 m-1">
-        <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
+        <a style="color: inherit" href="{{post.url}}"><h5 class="card-title">{{post.title}}</h5></a>
         <p class="card-text">
             <small class="text-muted">
-                by <a href="/users/{{post.user.id}}">{{post.user.username}}</a> | 
+                <a href="/posts/{{post.id}}">comments</a>
+            </small>
+            <small class="text-muted">
+                by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
                 posted on {{post.created_at}} | 
                 tagged in {% for tag in post.tag_list %}<a href="/tags/{{tag}}"> {{ tag }} </a>{% endfor %}
             </small>

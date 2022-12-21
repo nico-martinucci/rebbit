@@ -9,14 +9,20 @@ SHORT_FORM_INPUT_CLASSES = "form-control col-3 mb-3"
 class AddPostForm(FlaskForm):
     """ Form for adding a new post. """
 
+    url = StringField(
+        "Link: ",
+        validators=[URL(), Optional()],
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
+    )
+
     title = StringField(
         "Title: ",
         validators=[InputRequired()],
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
-
-    url = StringField(
-        "Link: ",
+    
+    img_url = StringField(
+        "Image: ",
         validators=[URL(), Optional()],
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
