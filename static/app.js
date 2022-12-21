@@ -227,6 +227,8 @@ async function postUpvoteDownvote(event) {
         }
     })
 
+    console.log(response);
+
     const $voteTotal = $voteButton.siblings(".vote-total");
     $voteTotal.html(`<b>${response.data.score}</b>`);
 

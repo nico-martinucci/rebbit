@@ -1,7 +1,8 @@
 """ Models for users, posts, comments, and tags """
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, select
+from sqlalchemy.ext.hybrid import hybrid_property
 from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
@@ -131,7 +132,7 @@ class Post(db.Model):
         default=db.func.now()
     )
 
-    votes = db.Column(
+    score = db.Column(
         db.Integer,
         nullable=False,
         default=0
@@ -159,16 +160,23 @@ class Post(db.Model):
         
         return tag_list
 
-    @property
+    @hybrid_property
     def get_total_score(self):
         """ Calculates the total score for the post. """
 
         total_score = db.session.query(
-            func.sum(UserPostVote.score)).filter(UserPostVote.post_id == self.id
-        )
+            func.sum(UserPostVote.score)).filter(UserPostVote.post_id == self.id)
 
         return total_score.one()[0] or 0
 
+    @get_total_score.expression
+    def get_total_score(cls):
+
+        total_score = select(
+            func.sum(UserPostVote.score)).where(UserPostVote.post_id == cls.id)
+        # breakpoint()
+        return total_score
+        
 
 class Comment(db.Model):
     """ Model for comments table """
@@ -190,6 +198,12 @@ class Comment(db.Model):
         db.DateTime,
         nullable=False,
         default=db.func.now()
+    )
+
+    score = db.Column(
+        db.Integer,
+        nullable=False,
+        default=0
     )
 
     parent_comment_id = db.Column(
@@ -215,7 +229,7 @@ class Comment(db.Model):
         backref="replies"
     )
     
-    @property
+    @hybrid_property
     def get_total_score(self):
         """ Calculates the total score for the comment. """
 
@@ -224,6 +238,14 @@ class Comment(db.Model):
         )
 
         return total_score.one()[0] or 0
+
+    @get_total_score.expression
+    def get_total_score(cls):
+
+        total_score = select(
+            func.sum(UserCommentVote.score)).where(UserCommentVote.comment_id == cls.id)
+
+        return total_score
 
 
 class Tag(db.Model):

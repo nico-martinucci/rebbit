@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import (Flask, request, redirect, render_template, flash, session, g, 
     jsonify)
 from flask_wtf.csrf import CSRFProtect
+from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Comment, Tag, UserPostVote, UserCommentVote
@@ -100,7 +101,9 @@ def get_list_of_liked_content():
 def show_home_page():
     """ Renders home page of posts. """
 
-    all_posts = Post.query.order_by(Post.created_at.desc()).all()
+    all_posts = db.session.query(Post).order_by(desc(
+        Post.score + 100 / (db.extract('epoch', datetime.now() - Post.created_at))
+    ))
 
     return render_template("index.html", posts=all_posts)
 
@@ -276,11 +279,19 @@ def view_post(post_id):
     form = AddCommentForm()
 
     post = Post.query.get_or_404(post_id)
-    parent_comments = [
-        comment 
-        for comment in post.comments 
-        if comment.parent_comment_id == -1
-    ]
+    # parent_comments = [
+    #     comment 
+    #     for comment in post.comments 
+    #     if comment.parent_comment_id == -1
+    # ]
+
+
+    parent_comments = (db.session
+        .query(Comment)
+        .filter(
+            Comment.post_id == post_id,
+            Comment.parent_comment_id == -1)
+        .order_by(desc(Comment.score)))
 
     return render_template(
         "post_detail.html", 
@@ -381,19 +392,33 @@ def handle_voting(content, content_id):
     vote_score = int(request.json["vote"]) # stores whether this is an "up" or "down" vote
     response = {}
 
+
     if content == "post":
+        target_post = Post.query.get(content_id)   
+        
         vote = UserPostVote.query.filter(
             UserPostVote.post_id == content_id,
             UserPostVote.user_id == g.user.id
         ).one_or_none()
 
+        # if user has already voted at all...
         if vote:
-            if vote.score == vote_score:
+            # remove the value of old vote from post's score
+            target_post.score -= vote.score
+
+            # if user has already submitted THIS vote...
+            if vote.score == vote_score: 
                 db.session.delete(vote)
-            else:
+            
+            # if user hasn't submitted THIS vote...
+            else: 
+                target_post.score += vote_score
                 vote.score = vote_score
-        
+
+        # if user hasn't submitted a vote yet at all...
         else:
+            target_post.score += vote_score
+            
             new_vote = UserPostVote(
                 post_id = content_id,
                 user_id = g.user.id,
@@ -403,26 +428,32 @@ def handle_voting(content, content_id):
             db.session.add(new_vote)
 
         db.session.commit()
-
-        post = Post.query.get(content_id)
         
         response = {
-            "score": post.get_total_score or 0
+            "score": target_post.score or 0
         }
 
     else:
+        target_comment = Comment.query.get(content_id)   
+        
         vote = UserCommentVote.query.filter(
             UserCommentVote.comment_id == content_id,
             UserCommentVote.user_id == g.user.id
         ).one_or_none()
 
         if vote:
+            # remove the old vote no matter what
+            target_comment.score -= vote.score
+
             if vote.score == vote_score:
                 db.session.delete(vote)
             else:
+                target_comment.score += vote_score
                 vote.score = vote_score
 
         else:
+            target_comment.score += vote_score
+
             new_vote = UserCommentVote(
                 comment_id = content_id,
                 user_id = g.user.id,
@@ -432,11 +463,9 @@ def handle_voting(content, content_id):
             db.session.add(new_vote)
 
         db.session.commit()
-
-        comment = Comment.query.get(content_id)
         
         response = {
-            "score": comment.get_total_score or 0
+            "score": target_comment.score or 0
         }
 
     return jsonify(response)
