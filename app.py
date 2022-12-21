@@ -28,7 +28,7 @@ CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 
 connect_db(app)
-db.drop_all()
+# db.drop_all()
 db.create_all()
 
 @app.before_request
@@ -203,7 +203,6 @@ def add_new_post():
             content=content, 
             url=url, 
             img_url=img_url, 
-            votes=0
         )
 
         db.session.add(new_post)
@@ -259,7 +258,6 @@ def add_comment(post_id):
     if form.validate_on_submit():
         new_comment = Comment(
             content=form.content.data,
-            votes=0,
             parent_comment_id=form.parent_comment_id.data,
             user_id=g.user.id,
             post_id=post_id
@@ -355,18 +353,18 @@ def handle_voting(content, content_id):
                 score = vote_score
             )
             
-            db.session.add(vote)
+            db.session.add(new_vote)
 
         db.session.commit()
 
         post = Post.query.get(content_id)
-
+        
         response = {
-            "score": post.get_total_score()
+            "score": post.get_total_score or 0
         }
 
     else:
-        vote = UserCommenttVote.query.filter(
+        vote = UserCommentVote.query.filter(
             UserCommentVote.comment_id == content_id,
             UserCommentVote.user_id == g.user.id
         ).one_or_none()
@@ -391,7 +389,7 @@ def handle_voting(content, content_id):
         comment = Comment.query.get(content_id)
         
         response = {
-            "score": post.get_total_score()
+            "score": comment.get_total_score or 0
         }
 
     return jsonify(response)

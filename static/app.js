@@ -215,9 +215,8 @@ $("body").on("mouseout", ".vote", toggleVoteIconOff)
 
 async function postUpvoteDownvote(event) {
     const $voteButton = $(event.target);
-    // get content type of article that the vote is in
+
     const content = $voteButton.closest("article").data("content-type");
-    // get the id of the aricle that the vote is in
     const content_id = $voteButton.closest("article").data("id");
 
     const response = await axios({
@@ -228,7 +227,8 @@ async function postUpvoteDownvote(event) {
         }
     })
 
-    console.log(response);
+    const $voteTotal = $voteButton.parent().children(".vote-total");
+    $voteTotal.html(`<b>${response.data.score}</b>`);
 }
 
 $("body").on("click", ".vote", postUpvoteDownvote)
