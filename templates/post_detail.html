@@ -13,7 +13,7 @@
             <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
             <p class="card-text"><small class="text-muted">
                 by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
-                posted on {{post.created_at}} | 
+                posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
                 tagged in {% for tag in post.tag_list %}<a href="#"> {{ tag }} </a>{% endfor %}</small>
             </p>
             <p class="card-text">{{post.content}}</p>

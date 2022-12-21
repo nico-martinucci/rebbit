@@ -4,7 +4,7 @@
         <p class="card-text my-0">
             <small class="text-muted">
                 by <a href="/users/{{comment.user.id}}">{{comment.user.username}}</a> | 
-                posted on {{comment.created_at}}
+                posted {{comment.created_at.strftime("%I:%M %p on %a %B %d, %Y")}}
             </small>
         </p>
         <p class="card-text my-0">

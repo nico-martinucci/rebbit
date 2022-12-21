@@ -1,6 +1,7 @@
 """ nebbit application """
 import os
 import requests
+from datetime import datetime
 from dotenv import load_dotenv
 from flask import (Flask, request, redirect, render_template, flash, session, g, 
     jsonify)
@@ -315,8 +316,8 @@ def get_url_data():
 
     img_url = soup.img.attrs["src"]
 
-    if soup.nav:
-        img_url = soup.nav.find_next_sibling().img["src"]
+    # if soup.nav:
+    #     img_url = soup.nav.find_next_sibling().img["src"]
 
     response = {
         "h1": soup.h1.text,

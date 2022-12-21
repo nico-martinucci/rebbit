@@ -6,11 +6,9 @@
         <a style="color: inherit" href="{{post.url}}"><h5 class="card-title">{{post.title}}</h5></a>
         <p class="card-text">
             <small class="text-muted">
-                <a href="/posts/{{post.id}}">comments</a>
-            </small>
-            <small class="text-muted">
+                <a href="/posts/{{post.id}}">comments</a> | 
+                posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
                 by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
-                posted on {{post.created_at}} | 
                 tagged in {% for tag in post.tag_list %}<a href="/tags/{{tag}}"> {{ tag }} </a>{% endfor %}
             </small>
         </p>
