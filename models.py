@@ -1,6 +1,7 @@
 """ Models for users, posts, comments, and tags """
 
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
 from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
@@ -48,6 +49,18 @@ class User(db.Model):
     comments = db.relationship(
         "Comment",
         backref="user"
+    )
+
+    voted_posts = db.relationship(
+        "Post",
+        secondary="users_posts_votes",
+        backref="liked_by"
+    )
+
+    voted_comments = db.relationship(
+        "Comment",
+        secondary="users_comments_votes",
+        backref="liked_by"
     )
 
     @classmethod
@@ -118,7 +131,7 @@ class Post(db.Model):
         default=db.func.now()
     )
 
-    likes = db.Column(
+    votes = db.Column(
         db.Integer,
         nullable=False,
         default=0
@@ -146,6 +159,16 @@ class Post(db.Model):
         
         return tag_list
 
+    @property
+    def get_total_score(self):
+        """ Calculates the total score for the post. """
+
+        total_score = db.session.query(
+            func.sum(UserPostVote.score)).filter(UserPostVote.post_id == self.id
+        )
+
+        return total_score.one()[0]
+
 
 class Comment(db.Model):
     """ Model for comments table """
@@ -161,12 +184,6 @@ class Comment(db.Model):
     content = db.Column(
         db.Text,
         nullable=False
-    )
-    
-    likes = db.Column(
-        db.Integer,
-        nullable=False,
-        default=0
     )
 
     created_at = db.Column(
@@ -197,6 +214,16 @@ class Comment(db.Model):
         remote_side=[id],
         backref="replies"
     )
+    
+    @property
+    def get_total_score(self):
+        """ Calculates the total score for the comment. """
+
+        total_score = db.session.query(
+            func.sum(UserCommentVote.score)).filter(UserCommentVote.comment_id == self.id
+        )
+
+        return total_score.one()[0]
 
 
 class Tag(db.Model):
@@ -239,3 +266,54 @@ class PostTag(db.Model):
         primary_key=True
     )
     
+
+class UserPostVote(db.Model):
+    """ 
+    Model for join table between users and posts - each represents one
+    user's vote for one post. 
+    """
+
+    __tablename__ = "users_posts_votes"
+
+    post_id = db.Column(
+        db.Integer,
+        db.ForeignKey("posts.id"),
+        primary_key=True
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        primary_key=True
+    )
+
+    score = db.Column(
+        db.Integer,
+        nullable=False
+    )
+
+
+class UserCommentVote(db.Model):
+    """ 
+    Model for join table between users and comments - each represents one
+    user's vote for one comment. 
+    """
+
+    __tablename__ = "users_comments_votes"
+
+    comment_id = db.Column(
+        db.Integer,
+        db.ForeignKey("comments.id"),
+        primary_key=True
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        primary_key=True
+    )
+
+    score = db.Column(
+        db.Integer,
+        nullable=False
+    )

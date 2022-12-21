@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<section id="post" data-post-id="{{post.id}}">
+<article id="post" data-content-type="post" data-id="{{post.id}}">
     <div class="card flex-row flex-wrap m-2 p-2">
         <div class="card-header border-0 p-0">
             <img width="300px" src="{{post.img_url}}" alt="" />
@@ -12,6 +12,9 @@
         <div class="card-block px-2 m-2">
             <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
             <p class="card-text"><small class="text-muted">
+                <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
+                <span id="vote-total"><b>{{post.votes}}</b></span>
+                <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
                 by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
                 posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
                 tagged in {% for tag in post.tag_list %}<a href="#"> {{ tag }} </a>{% endfor %}</small>
@@ -19,9 +22,9 @@
             <p class="card-text">{{post.content}}</p>
         </div>
     </div>
-</section>
+</article>
 
-<article id="add-parent-comment" data-comment-id="-1">
+<article id="add-parent-comment" data-id="-1">
     <form class="m-2 p-2">
         {{ form.hidden_tag() }} <!--add type=hidden form fields -->
     

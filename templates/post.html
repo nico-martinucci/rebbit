@@ -1,12 +1,4 @@
-<div class="card flex-row flex-wrap m-2 p-2">
-    <div class="pr-1 mr-1 my-auto">
-        <div>
-            <a href=""><i class="vote bi bi-arrow-up-circle"></i></a>
-        </div>
-        <div>
-            <a href=""><i class="vote bi bi-arrow-down-circle"></i></a>
-        </div>
-    </div>
+<article class="card flex-row flex-wrap m-2 p-2" data-content-type="post" data-id="{{post.id}}">
     <div class="card-header border-0 p-0">
         <img width="80px" src="{{post.img_url}}" alt="" />
     </div>
@@ -14,6 +6,9 @@
         <a style="color: inherit" href="{{post.url}}"><h5 class="card-title">{{post.title}}</h5></a>
         <p class="card-text">
             <small class="text-muted">
+                <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
+                <span id="vote-total"><b>{{post.votes}}</b></span>
+                <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
                 <a href="/posts/{{post.id}}">comments</a> | 
                 posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
                 by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
@@ -21,4 +16,4 @@
             </small>
         </p>
     </div>
-</div>
+</article>

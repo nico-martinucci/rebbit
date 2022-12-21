@@ -1,8 +1,11 @@
-<article class="card flex-row flex-wrap m-2 p-2" data-comment-id="{{comment.id}}">
+<article class="card flex-row flex-wrap m-2 p-2" data-content-type="comment" data-id="{{comment.id}}">
     <div class="card-block px-2">
         <p class="card-text my-0">{{comment.content}}</p>
         <p class="card-text my-0">
             <small class="text-muted">
+                <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
+                <span id="vote-total"><b>{{comment.votes}}</b></span>
+                <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
                 by <a href="/users/{{comment.user.id}}">{{comment.user.username}}</a> | 
                 posted {{comment.created_at.strftime("%I:%M %p on %a %B %d, %Y")}}
             </small>

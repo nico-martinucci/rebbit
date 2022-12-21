@@ -8,7 +8,7 @@ from flask import (Flask, request, redirect, render_template, flash, session, g,
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.exc import IntegrityError
 # from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Post, Comment, Tag
+from models import db, connect_db, User, Post, Comment, Tag, UserPostVote, UserCommentVote
 from forms import (AddPostForm, AddTagsForm, AddCommentForm, LoginForm, 
     SignupForm, CSRFProtectForm)
 from bs4 import BeautifulSoup as bs
@@ -28,7 +28,7 @@ CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 
 connect_db(app)
-# db.drop_all()
+db.drop_all()
 db.create_all()
 
 @app.before_request
@@ -203,7 +203,7 @@ def add_new_post():
             content=content, 
             url=url, 
             img_url=img_url, 
-            likes=1
+            votes=0
         )
 
         db.session.add(new_post)
@@ -259,7 +259,7 @@ def add_comment(post_id):
     if form.validate_on_submit():
         new_comment = Comment(
             content=form.content.data,
-            likes=1,
+            votes=0,
             parent_comment_id=form.parent_comment_id.data,
             user_id=g.user.id,
             post_id=post_id
@@ -323,5 +323,75 @@ def get_url_data():
         "h1": soup.h1.text,
         "img_url": img_url
     }
+
+    return jsonify(response)
+
+# TODO: add in api routes for adding upvotes to posts, then comments; add in up
+# vote/down votes icons for comments as well
+
+@app.post("/api/<content>/<int:content_id>/vote")
+def handle_voting(content, content_id):
+    """ Handles voting for both posts and comments. """
+
+    vote_score = int(request.json["vote"]) # stores whether this is an "up" or "down" vote
+    response = {}
+
+    if content == "post":
+        vote = UserPostVote.query.filter(
+            UserPostVote.post_id == content_id,
+            UserPostVote.user_id == g.user.id
+        ).one_or_none()
+
+        if vote:
+            if vote.score == vote_score:
+                db.session.delete(vote)
+            else:
+                vote.score = vote_score
+        
+        else:
+            new_vote = UserPostVote(
+                post_id = content_id,
+                user_id = g.user.id,
+                score = vote_score
+            )
+            
+            db.session.add(vote)
+
+        db.session.commit()
+
+        post = Post.query.get(content_id)
+
+        response = {
+            "score": post.get_total_score()
+        }
+
+    else:
+        vote = UserCommenttVote.query.filter(
+            UserCommentVote.comment_id == content_id,
+            UserCommentVote.user_id == g.user.id
+        ).one_or_none()
+
+        if vote:
+            if vote.score == vote_score:
+                db.session.delete(vote)
+            else:
+                vote.score = vote_score
+
+        else:
+            new_vote = UserCommentVote(
+                comment_id = content_id,
+                user_id = g.user.id,
+                score = vote_score
+            )
+            
+            db.session.add(new_vote)
+
+        db.session.commit()
+
+        comment = Comment.query.get(content_id)
+        
+        response = {
+            "score": post.get_total_score()
+        }
 
     return jsonify(response)

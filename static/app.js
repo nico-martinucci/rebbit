@@ -18,9 +18,9 @@ async function handleNewCommentFormSubmit(event) {
     const $commentBox = $(event.target).prev().children(".comment-text")
     const $submitButton = $(event.target);
 
-    const postId = $("#post").data("post-id");
+    const postId = $("#post").data("id");
     const commentText = $commentBox.val();
-    const parentCommentId = $commentBox.closest("article").data("comment-id")
+    const parentCommentId = $commentBox.closest("article").data("id")
     
     const commentData = await postNewComment(postId, commentText, parentCommentId);
 
@@ -117,7 +117,7 @@ $("body").on("click", ".close-reply-form", closeReplyForm);
 async function handleGetCommentReplies(event) {
     event.preventDefault();
     
-    const commentId = $(event.target).closest("article").data("comment-id");
+    const commentId = $(event.target).closest("article").data("id");
     const comments = await getComments(commentId);
 
     updateDOMWithCommentReplies($(event.target), comments);
@@ -181,7 +181,10 @@ async function getUrlData() {
 // *****************************************************************************
 // LISTENERS FOR RESPONSIVE ELEMENTS
 
-
+/**
+ * 
+ * @param {*} event 
+ */
 function toggleVoteIconOn(event) {
     const icon = $(event.target);
     if (icon.hasClass("bi-arrow-up-circle")) {
@@ -194,7 +197,10 @@ function toggleVoteIconOn(event) {
 
 $("body").on("mouseover", ".vote", toggleVoteIconOn)
 
-
+/**
+ * 
+ * @param {*} event 
+ */
 function toggleVoteIconOff(event) {
     const icon = $(event.target);
     if (icon.hasClass("bi-arrow-up-circle-fill")) {
@@ -206,3 +212,23 @@ function toggleVoteIconOff(event) {
 }
 
 $("body").on("mouseout", ".vote", toggleVoteIconOff)
+
+async function postUpvoteDownvote(event) {
+    const $voteButton = $(event.target);
+    // get content type of article that the vote is in
+    const content = $voteButton.closest("article").data("content-type");
+    // get the id of the aricle that the vote is in
+    const content_id = $voteButton.closest("article").data("id");
+
+    const response = await axios({
+        url: `${API_ENDPOINT_URL}/${content}/${content_id}/vote`,
+        method: "POST",
+        data: {
+            vote: $voteButton.data("vote")
+        }
+    })
+
+    console.log(response);
+}
+
+$("body").on("click", ".vote", postUpvoteDownvote)
