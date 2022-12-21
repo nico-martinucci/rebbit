@@ -27,6 +27,7 @@ app.config['SECRET_KEY'] = 'tacosandburritos'
 
 CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
+MAX_AGE_CONSTANT_BOOST = 5
 
 connect_db(app)
 # db.drop_all()
@@ -102,7 +103,7 @@ def show_home_page():
     """ Renders home page of posts. """
 
     all_posts = db.session.query(Post).order_by(desc(
-        Post.score + 100 / (db.extract('epoch', datetime.now() - Post.created_at))
+        Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))
     ))
 
     return render_template("index.html", posts=all_posts)
@@ -279,19 +280,13 @@ def view_post(post_id):
     form = AddCommentForm()
 
     post = Post.query.get_or_404(post_id)
-    # parent_comments = [
-    #     comment 
-    #     for comment in post.comments 
-    #     if comment.parent_comment_id == -1
-    # ]
-
 
     parent_comments = (db.session
         .query(Comment)
         .filter(
             Comment.post_id == post_id,
             Comment.parent_comment_id == -1)
-        .order_by(desc(Comment.score)))
+        .order_by(desc(Comment.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Comment.created_at)))))
 
     return render_template(
         "post_detail.html", 
