@@ -28,6 +28,8 @@ async function handleNewCommentFormSubmit(event) {
     
 }
 
+$("body").on("click", ".add-comment", handleNewCommentFormSubmit);
+
 /**
  * handles AJAX request for posting a new comment; gets back HTML of the new 
  * comment to add to the DOM
@@ -75,8 +77,6 @@ function updatedDOMWithNewComment(commentHtml, parentCommentId, $submitButton) {
     $commentBox.val("");
 }
 
-$("body").on("click", ".add-comment", handleNewCommentFormSubmit);
-
 
 // *****************************************************************************
 // LISTNERS/FUNCTIONS FOR COMMENT REPLY FORMS/LOADING 
@@ -123,6 +123,8 @@ async function handleGetCommentReplies(event) {
     updateDOMWithCommentReplies($(event.target), comments);
 }
 
+$("body").on("click", ".show-replies", handleGetCommentReplies);
+
 /**
  * handles AJAX request for getting a list of first-level comment replies
  * @param {integer} commentId - id of comment for which to get replies
@@ -152,8 +154,6 @@ function updateDOMWithCommentReplies(target, comments) {
     }
 }
 
-$("body").on("click", ".show-replies", handleGetCommentReplies);
-
 
 // *****************************************************************************
 // API CALL FOR PULLING URL INFORMATION
@@ -161,6 +161,9 @@ $("body").on("click", ".show-replies", handleGetCommentReplies);
 const $urlField = $("#url")
 $urlField.on("focusout", getUrlData);
 
+/**
+ * gets title and image link from provided URL for auto-populating form.
+ */
 async function getUrlData() {
     const response = await axios.get(
         `${API_ENDPOINT_URL}/posts/get-data`,
@@ -173,8 +176,6 @@ async function getUrlData() {
 
     $("#title").val(response.data.h1);
     $("#img_url").val(response.data.img_url);
-
-    console.log(response);
 }
 
 
@@ -182,8 +183,8 @@ async function getUrlData() {
 // LISTENERS FOR RESPONSIVE ELEMENTS
 
 /**
- * 
- * @param {*} event 
+ * toggles on the "fill" version of the arrow icons when mouseover.
+ * @param {event} event 
  */
 function toggleVoteIconOn(event) {
     const icon = $(event.target);
@@ -197,9 +198,10 @@ function toggleVoteIconOn(event) {
 
 $("body").on("mouseover", ".vote", toggleVoteIconOn)
 
+
 /**
- * 
- * @param {*} event 
+ * toggles off the "fill" verison of the arrow icons when mouseout.
+ * @param {event} event 
  */
 function toggleVoteIconOff(event) {
     const icon = $(event.target);
@@ -213,24 +215,53 @@ function toggleVoteIconOff(event) {
 
 $("body").on("mouseout", ".vote", toggleVoteIconOff)
 
-async function postUpvoteDownvote(event) {
+
+/**
+ * controller/callback for handling voting on posts and comments.
+ * @param {event} event 
+ */
+async function handlePostVote(event) {
     const $voteButton = $(event.target);
 
-    const content = $voteButton.closest("article").data("content-type");
+    const content_type = $voteButton.closest("article").data("content-type");
     const content_id = $voteButton.closest("article").data("id");
 
+    const newScore = await postVote(content_type, content_id, $voteButton);   
+
+    updateDOMWithVoteInfo(newScore, $voteButton);
+}
+
+$("body").on("click", ".vote", handlePostVote)
+
+/**
+ * makes API call to server, posting new vote info and getting back the new
+ * score of the comment/post
+ * @param {string} content_type - whether liked content is a "post" or "comment"
+ * @param {integer} content_id - id of the content liked/unliked
+ * @param {jQuery object} $voteButton - jQuery obj of the clicked vote icon
+ * @returns 
+ */
+async function postVote(content_type, content_id, $voteButton) {
     const response = await axios({
-        url: `${API_ENDPOINT_URL}/${content}/${content_id}/vote`,
+        url: `${API_ENDPOINT_URL}/${content_type}/${content_id}/vote`,
         method: "POST",
         data: {
             vote: $voteButton.data("vote")
         }
     })
 
-    console.log(response);
+    return response.data.score;
+}
 
+/**
+ * updates DOM with new vote information; toggles button classes to show user
+ * their current vote on a post/comment.
+ * @param {string} newScore - new numerical score to display
+ * @param {jQuery object} $voteButton - jQuery obj of the clicked vote icon
+ */
+function updateDOMWithVoteInfo(newScore, $voteButton) {
     const $voteTotal = $voteButton.siblings(".vote-total");
-    $voteTotal.html(`<b>${response.data.score}</b>`);
+    $voteTotal.html(`<b>${newScore}</b>`);
 
     if ($voteButton.hasClass("bi-arrow-up-circle-fill") || $voteButton.hasClass("bi-arrow-up-circle")) {
         $voteButton.toggleClass("text-primary");
@@ -242,5 +273,3 @@ async function postUpvoteDownvote(event) {
         $voteButton.siblings(".bi-arrow-up-circle").removeClass("text-primary")
     }
 }
-
-$("body").on("click", ".vote", postUpvoteDownvote)
