@@ -352,6 +352,7 @@ def get_children_comments(comment_id):
 
     return (jsonify(comments))
 
+
 @app.get("/api/posts/get-data")
 def get_url_data():
     """ Get data (h1 and image) for provided link; return them back. """
@@ -377,8 +378,6 @@ def get_url_data():
 
     return jsonify(response)
 
-# TODO: add in api routes for adding upvotes to posts, then comments; add in up
-# vote/down votes icons for comments as well
 
 @app.post("/api/<content>/<int:content_id>/vote")
 def handle_voting(content, content_id):
