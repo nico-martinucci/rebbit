@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}add tag{% endblock %}
+
+{% block content %}
+<h3 class="m-2 p-2">explore tags</h3>
+<ul id="tags">
+    {% for tag in tags %}
+        <li><a href="/tags/{{tag.tag}}">{{tag.tag}}</a> ({{tag.count}})</li>
+    {% endfor %}
+</ul>
+
+
+<button type="button" class="btn btn-primary btn-sm m-2 p-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Add a new tag
+</button>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">new tag</h5>
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+            </div>
+            <div class="modal-body">
+                <form class="m-2 p-2" id="add-tag-form" method="POST">
+                    {{ form.hidden_tag() }} <!--add type=hidden form fields -->
+
+                    {% for field in form
+                    if field.widget.input_type != 'hidden' %}
+
+                    <div>
+                        {{ field.label }}
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+
+                    {% endfor %}
+
+                    <button class="btn btn-primary btn-sm" type="submit">Add tag</button>
+                    <button class="btn btn-outline-secondary btn-sm" type="submit" data-bs-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

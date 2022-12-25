@@ -7,9 +7,10 @@ from flask import (Flask, request, redirect, render_template, flash, session, g,
     jsonify)
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import desc
+from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 # from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Post, Comment, Tag, UserPostVote, UserCommentVote
+from models import db, connect_db, User, Post, Comment, Tag, UserPostVote, UserCommentVote, PostTag
 from forms import (AddPostForm, AddTagsForm, AddCommentForm, LoginForm, 
     SignupForm, CSRFProtectForm)
 from bs4 import BeautifulSoup as bs
@@ -199,7 +200,7 @@ def get_user(username):
     return render_template("user.html", user=user, posts=posts)
 
 
-@app.route("/add-tag", methods=["GET", "POST"])
+@app.route("/tags", methods=["GET", "POST"])
 def add_new_tag():
     """ 
     On "GET", shows form to add a new tag; 
@@ -211,7 +212,13 @@ def add_new_tag():
         return redirect("/login")
 
     form = AddTagsForm()
-    tags = Tag.query.all()
+    # tags = Tag.query.all()
+    # tags = db.session.query(Tag.tag, func.count(PostTag.post_id).label("count")).group_by(Tag.tag).all()
+    tags = db.session.query(Tag.tag, func.count(Tag.tagged_post_ids).label("count")).group_by(Tag.tag).order_by(func.count(Tag.tagged_post_ids)).all()
+
+    # all_posts = db.session.query(Post).order_by(desc(
+    #     Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))
+    # ))
 
     if form.validate_on_submit():
         tag = form.tag.data
@@ -223,9 +230,9 @@ def add_new_tag():
         db.session.commit()
 
         flash("tag added!", "success")
-        return redirect("/add-tag")
+        return redirect("/tags")
     else:
-        return render_template("add_tag.html", form=form, tags=tags)
+        return render_template("tags.html", form=form, tags=tags)
 
 @app.get("/tags/<tag_name>")
 def show_tag_detail(tag_name):

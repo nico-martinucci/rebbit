@@ -30,7 +30,7 @@
             <a class="nav-link" href="/add-post">Post</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/add-tag">Tags</a>
+            <a class="nav-link" href="/tags">Tags</a>
           </li>
         </ul>
         <ul class="navbar-nav ml-auto">
@@ -61,6 +61,7 @@
     {% block content %} {% endblock %}
     <script src="http://unpkg.com/jquery"></script>
     <script src="https://unpkg.com/axios/dist/axios.js"></script>
+    <script src="https://unpkg.com/bootstrap"></script>
     <script src="/static/app.js"></script>
     <script type="text/javascript">
       axios.defaults.headers.common["X-CSRFToken"] = "{{ csrf_token() }}";

@@ -19,8 +19,11 @@
                 {% endif %}
                 <a href="/posts/{{post.id}}">comments</a> | 
                 posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
-                by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
+                by <a href="/users/{{post.user.username}}">{{post.user.username}}</a>
+                {% if post.tag_list %}
+                | 
                 tagged in {% for tag in post.tag_list %}<a href="/tags/{{tag}}"> {{ tag }} </a>{% endfor %}
+                {% endif %}
             </small>
         </p>
     </div>

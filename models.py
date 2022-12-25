@@ -270,6 +270,10 @@ class Tag(db.Model):
         nullable=False
     )
 
+    tagged_post_ids = db.relationship(
+        "PostTag"
+    )
+
 
 class PostTag(db.Model):
     """ Model for join table between posts and tags """

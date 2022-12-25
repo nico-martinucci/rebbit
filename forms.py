@@ -3,6 +3,7 @@ from wtforms import (StringField, SelectField, TextAreaField,
     SelectMultipleField, PasswordField, EmailField, HiddenField)
 from wtforms.validators import InputRequired, Optional, URL, length
 
+WIDE_FORM_INPUT_CLASSES = "form-control mb-3"
 STANDARD_FORM_INPUT_CLASSES = "form-control col-6 mb-3"
 SHORT_FORM_INPUT_CLASSES = "form-control col-3 mb-3"
 
@@ -45,13 +46,13 @@ class AddTagsForm(FlaskForm):
     tag = StringField(
         "Tag: ",
         validators=[InputRequired()],
-        render_kw={"class": SHORT_FORM_INPUT_CLASSES}
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
     
     description = TextAreaField(
         "Description: ",
         validators=[InputRequired()],
-        render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "rows": "3"}
+        render_kw={"class": WIDE_FORM_INPUT_CLASSES, "rows": "3"}
     )
 
 
