@@ -16,3 +16,4 @@
 - Better URL scrubbing and title/image/content suggestions
 - User profile/display customization
 - Post/comment limiting and infinite scroll
+- Posting from modal
