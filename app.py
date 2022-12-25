@@ -1,4 +1,4 @@
-""" nebbit application """
+""" rebbit application """
 import os
 import requests
 from datetime import datetime
@@ -18,7 +18,7 @@ app = Flask(__name__)
 csrf = CSRFProtect(app)
 csrf.init_app(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///nebbit'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///rebbit'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = 'tacosandburritos'
@@ -144,7 +144,21 @@ def signup_user():
         password = form.password.data
         password_2 = form.password_2.data
 
-        # add in check to make sure passwords match
+        flash_messages = []
+
+        if User.query.filter(User.email == email).one_or_none():
+            flash_messages.append("this email is in use by another user.")
+
+        if User.query.filter(User.username == username).one_or_none():
+            flash_messages.append("this username has already been taken.")
+
+        if password != password_2:
+            flash_messages.append("passwords don't match.")
+
+        if flash_messages:
+            for msg in flash_messages:
+                flash(msg, "danger")
+            return render_template("signup.html", form=form)
 
         new_user = User.signup(
             username=username,
