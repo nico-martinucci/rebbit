@@ -1,5 +1,5 @@
 # rebbit
-### A light-weight, from-scratch reddit clone
+### A light-weight reddit clone
 
 ## Features:
 - User registration and authentication
@@ -16,4 +16,3 @@
 - Better URL scrubbing and title/image/content suggestions
 - User profile/display customization
 - Post/comment limiting and infinite scroll
-- Posting from modal
