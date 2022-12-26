@@ -17,6 +17,7 @@ async function handleNewTagFormSubmit(event) {
     const newTag = await postNewTag();
     updateDOMWithNewTag(newTag);
     $addTagModal.modal("hide");
+    // TODO: change this so it only fires if successful
     toastr["success"]("new tag succesfully added!", "tag added")
 }
 
@@ -62,7 +63,8 @@ async function handleNewCommentFormSubmit(event) {
     const commentData = await postNewComment(postId, commentText, parentCommentId);
 
     updatedDOMWithNewComment(commentData.html, parentCommentId, $submitButton);
-    toastr["success"]("new tag succesfully added!", "tag added")
+    // TODO: change this so it only fires if successful
+    toastr["success"]("new comment succesfully added!", "comment added")
 }
 
 $("body").on("click", ".add-comment", handleNewCommentFormSubmit);
