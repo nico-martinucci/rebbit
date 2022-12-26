@@ -214,7 +214,14 @@ def add_new_tag():
     form = AddTagsForm()
     # tags = Tag.query.all()
     # tags = db.session.query(Tag.tag, func.count(PostTag.post_id).label("count")).group_by(Tag.tag).all()
-    tags = db.session.query(Tag.tag, func.count(Tag.tagged_post_ids).label("count")).group_by(Tag.tag).order_by(func.count(Tag.tagged_post_ids)).all()
+    # tags = db.session.query(PostTag.tag_id.label("tag"), func.count(PostTag.post_id).label("count")).group_by(PostTag.tag_id).order_by(func.count(PostTag.post_id)).all()
+    tags = (db.session
+        .query(Tag.tag, func.count(PostTag.post_id).label("count"))
+        .join(Tag.tagged_post_ids)
+        .group_by(Tag.tag)
+        .order_by(desc(func.count(PostTag.post_id)))
+        .all()
+    )
 
     # all_posts = db.session.query(Post).order_by(desc(
     #     Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))

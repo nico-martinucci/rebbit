@@ -271,7 +271,8 @@ class Tag(db.Model):
     )
 
     tagged_post_ids = db.relationship(
-        "PostTag"
+        "PostTag",
+        backref="tag"
     )
 
 
