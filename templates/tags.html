@@ -4,19 +4,19 @@
 
 {% block content %}
 <h3 class="m-2 p-2">explore tags</h3>
-<ul id="tags">
+<ul id="tag-list">
     {% for tag in tags %}
         <li><a href="/tags/{{tag.tag}}">{{tag.tag}}</a> ({{tag.count}})</li>
     {% endfor %}
 </ul>
 
 
-<button type="button" class="btn btn-primary btn-sm m-2 p-2" data-bs-toggle="modal" data-bs-target="#exampleModal">
+<button type="button" class="btn btn-primary btn-sm m-2 p-2" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
     Add a new tag
 </button>
 
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="add-tag-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -24,7 +24,7 @@
                 <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
-                <form class="m-2 p-2" id="add-tag-form" method="POST">
+                <form class="m-2 p-2" id="add-tag-form">
                     {{ form.hidden_tag() }} <!--add type=hidden form fields -->
 
                     {% for field in form
@@ -41,8 +41,8 @@
 
                     {% endfor %}
 
-                    <button class="btn btn-primary btn-sm" type="submit">Add tag</button>
-                    <button class="btn btn-outline-secondary btn-sm" type="submit" data-bs-dismiss="modal">Close</button>
+                    <button id="add-tag-button" class="btn btn-primary btn-sm" type="submit">Add tag</button>
+                    <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                 </form>
             </div>
         </div>

@@ -200,46 +200,20 @@ def get_user(username):
     return render_template("user.html", user=user, posts=posts)
 
 
-@app.route("/tags", methods=["GET", "POST"])
-def add_new_tag():
-    """ 
-    On "GET", shows form to add a new tag; 
-    on "POST", adds new tag to the database. 
-    """
+@app.get("/tags")
+def get_tags_page():
+    """ Render tags page. """
 
-    if not g.user:
-        flash("you must be signed in to add tags.", "warning")
-        return redirect("/login")
-
-    form = AddTagsForm()
-    # tags = Tag.query.all()
-    # tags = db.session.query(Tag.tag, func.count(PostTag.post_id).label("count")).group_by(Tag.tag).all()
-    # tags = db.session.query(PostTag.tag_id.label("tag"), func.count(PostTag.post_id).label("count")).group_by(PostTag.tag_id).order_by(func.count(PostTag.post_id)).all()
     tags = (db.session
         .query(Tag.tag, func.count(PostTag.post_id).label("count"))
-        .join(Tag.tagged_post_ids)
+        .join(Tag.tagged_post_ids, isouter=True)
         .group_by(Tag.tag)
         .order_by(desc(func.count(PostTag.post_id)))
         .all()
     )
+    
+    return render_template("tags.html", form=AddTagsForm(), tags=tags)
 
-    # all_posts = db.session.query(Post).order_by(desc(
-    #     Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))
-    # ))
-
-    if form.validate_on_submit():
-        tag = form.tag.data
-        description = form.description.data
-
-        new_tag = Tag(tag=tag, description=description)
-
-        db.session.add(new_tag)
-        db.session.commit()
-
-        flash("tag added!", "success")
-        return redirect("/tags")
-    else:
-        return render_template("tags.html", form=form, tags=tags)
 
 @app.get("/tags/<tag_name>")
 def show_tag_detail(tag_name):
@@ -327,12 +301,39 @@ def view_post(post_id):
 ###############################################################################
 # API ROUTES
 
+@app.post("/api/tags")
+def add_new_tag_api():
+    """ POSTs a new tag from tag pop-up modal. """
+
+    # TODO: add in authentication for adding a tag
+
+    form = AddTagsForm(obj=request.json)
+
+    if form.validate_on_submit():
+        tag = form.tag.data
+        description = form.description.data
+
+        new_tag = Tag(tag=tag, description=description)
+
+        db.session.add(new_tag)
+        db.session.commit()
+
+        # flash("tag added!", "success")
+        response = {
+            "tag": new_tag.tag
+        }
+
+        return jsonify(response)
+
+
 @app.post("/api/posts/<int:post_id>/comment")
 def add_comment(post_id):
     """ 
     POSTs a new comment to the current post; 
     returns an injectable HTML snippet of the comment. 
     """
+
+    # TODO: add in authentication for adding a comment
 
     form = AddCommentForm(obj=request.json)
 
@@ -355,7 +356,7 @@ def add_comment(post_id):
             )
         }
 
-        return (jsonify(response))
+        return jsonify(response)
 
 
 @app.get("/api/comments/<int:comment_id>/children")
@@ -414,6 +415,7 @@ def handle_voting(content, content_id):
     vote_score = int(request.json["vote"]) # stores whether this is an "up" or "down" vote
     response = {}
 
+    # TODO: add in authentication for voting
 
     if content == "post":
         target_post = Post.query.get(content_id)   

@@ -3,6 +3,43 @@
 const API_ENDPOINT_URL = "http://localhost:5000/api";
 const mytoken = "{{ csrf_token() }}";
 
+// ****************************************************************************
+// LISTENERS/FUNCTIONS FOR ADDING A NEW TAG
+
+const $addTagButton = $("#add-tag-button");
+const $tag = $("#tag");
+const $description = $("#description");
+const $tagList = $("#tag-list");
+const $addTagModal = $("#add-tag-modal")
+
+async function handleNewTagFormSubmit(event) {
+    event.preventDefault();
+    const newTag = await postNewTag();
+    updateDOMWithNewTag(newTag);
+    $addTagModal.modal("hide");
+    toastr["success"]("new tag succesfully added!", "tag added")
+}
+
+$addTagButton.on("click", handleNewTagFormSubmit)
+
+async function postNewTag() {
+    const response = await axios({
+        url: `${API_ENDPOINT_URL}/tags`,
+        method: "POST",
+        data: {
+            tag: $tag.val(),
+            description: $description.val()
+        }
+    })
+    
+    return response.data.tag;
+}
+
+function updateDOMWithNewTag(newTag) {
+    $tagList.prepend(`<li><a href="/tags/${newTag}" >${newTag}</a> (0)</li>`);
+    $tag.val("");
+    $description.val("");
+}
 
 // *****************************************************************************
 // LISTENERS/FUNCTIONS FOR ADDING A NEW COMMENT
@@ -25,7 +62,7 @@ async function handleNewCommentFormSubmit(event) {
     const commentData = await postNewComment(postId, commentText, parentCommentId);
 
     updatedDOMWithNewComment(commentData.html, parentCommentId, $submitButton);
-    
+    toastr["success"]("new tag succesfully added!", "tag added")
 }
 
 $("body").on("click", ".add-comment", handleNewCommentFormSubmit);
