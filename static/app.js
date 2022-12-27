@@ -5,9 +5,11 @@ const mytoken = "{{ csrf_token() }}";
 
 const FLASH_MESSAGE_LIFE_MILLISECONDS = 3000;
 
-const $topFlashMessages = $("#top-flash-messages")
-const $botFlashMessages = $("#bot-flash-messages")
-const $modalFlashMessages = $("#modal-flash-messages")
+const $topFlashMessages = $("#top-flash-messages");
+const $botFlashMessages = $("#bot-flash-messages");
+const $modalFlashMessages = $("#modal-flash-messages");
+
+const postId = $("#post").data("id");
 
 
 // ****************************************************************************
@@ -24,8 +26,14 @@ $(window).on("load", () => {
 const $postList = $("#posts");
 const $loadPostsButton = $("#load-posts")
 
+/**
+ * controller/callback for getting more posts and adding them to the bottom
+ * of the post list; currently triggered on "load more" button click. works for
+ * all post pages - home, user, tags.
+ */
 async function handleGetMorePosts() {
     const posts = await getPosts();
+
     if (posts.length) {
         updateDOMWithPosts(posts);
         const pageCount = $postList.data("pages");
@@ -38,6 +46,10 @@ async function handleGetMorePosts() {
 
 $loadPostsButton.on("click", handleGetMorePosts);
 
+/**
+ * AJAX get request to get more posts.
+ * @returns array of rendered HTML, one for each post in batch.
+ */
 async function getPosts() {
     const response = await axios.get(
         `${API_ENDPOINT_URL}/posts`,
@@ -53,11 +65,70 @@ async function getPosts() {
     return response.data;
 }
 
+/**
+ * updates DOM with array of rendered posts
+ * @param {array} posts - array of rendered HTML snippets, one for each post.
+ */
 function updateDOMWithPosts(posts) {
     for (let post of posts) {
         $postList.append($(post.html));
     }
 }
+
+
+// ****************************************************************************
+// LISTENERS/FUNCTIONS FOR GETTING COMMENTS
+
+const $commentList = $("#comments");
+const $loadCommentsButton = $("#load-comments")
+
+/**
+ * controller/callback for getting more comments and adding them to the bottom
+ * of the comment list; currently triggered on "load more" button click.
+ */
+async function handleGetMoreComments() {
+    const comments = await getMoreComments();
+
+    if (comments.length) {
+        updateDOMWithComments(comments);
+        const pageCount = $commentList.data("pages");
+        $commentList.data("pages", pageCount + 1);
+    } else {
+        flashMessage("success", "all comments loaded!", "bot");
+        $loadCommentsButton.addClass("d-none");
+    }
+}
+
+$loadCommentsButton.on("click", handleGetMoreComments);
+
+/**
+ * AJAX get request to get more comments.
+ * @returns array of rendered HTML, one for each comment in batch.
+ */
+async function getMoreComments() {
+    const response = await axios.get(
+        `${API_ENDPOINT_URL}/posts/${postId}/comments`,
+        {
+            params: {
+                offset: $commentList.data("pages")
+            }
+        }
+    )
+
+    return response.data;
+}
+
+/**
+ * updates DOM with array of rendered comments
+ * @param {array} comments - array of rendered HTML snippets, one for 
+ * each comment.
+ */
+function updateDOMWithComments(comments) {
+    for (let comment of comments) {
+        $commentList.append($(comment.html));
+    }
+}
+
 
 // ****************************************************************************
 // LISTENERS/FUNCTIONS FOR ADDING A NEW TAG
@@ -68,6 +139,10 @@ const $description = $("#description");
 const $tagList = $("#tag-list");
 const $addTagModal = $("#add-tag-modal")
 
+/**
+ * 
+ * @param {*} event 
+ */
 async function handleNewTagFormSubmit(event) {
     event.preventDefault();
     const response = await postNewTag();
@@ -82,6 +157,10 @@ async function handleNewTagFormSubmit(event) {
 
 $addTagButton.on("click", handleNewTagFormSubmit)
 
+/**
+ * 
+ * @returns 
+ */
 async function postNewTag() {
     const response = await axios({
         url: `${API_ENDPOINT_URL}/tags`,
@@ -95,6 +174,10 @@ async function postNewTag() {
     return response.data;
 }
 
+/**
+ * 
+ * @param {*} newTag 
+ */
 function updateDOMWithNewTag(newTag) {
     $tagList.prepend(`
         <a class="btn btn-sm btn-info m-1" href="/tags/${newTag}">
@@ -144,7 +227,7 @@ $("body").on("click", ".add-comment", handleNewCommentFormSubmit);
  */
 async function postNewComment(postId, commentText, parentCommentId) {
     const response = await axios({
-        url: `${API_ENDPOINT_URL}/posts/${postId}/comment`,
+        url: `${API_ENDPOINT_URL}/posts/${postId}/comments`,
         method: "POST",
         data: {
             content: commentText,

@@ -30,6 +30,7 @@ CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 MAX_AGE_CONSTANT_BOOST = 5
 POST_LIMIT = 20
+COMMENT_LIMIT = 3
 
 connect_db(app)
 # db.drop_all()
@@ -308,7 +309,11 @@ def view_post(post_id):
         .filter(
             Comment.post_id == post_id,
             Comment.parent_comment_id == -1)
-        .order_by(desc(Comment.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Comment.created_at)))))
+        .order_by(desc(Comment.score + MAX_AGE_CONSTANT_BOOST / (
+            db.extract('epoch', datetime.now() - Comment.created_at)
+        )))
+        .limit(COMMENT_LIMIT)
+    )
 
     return render_template(
         "post_detail.html", 
@@ -352,7 +357,6 @@ def get_more_posts():
             .limit(POST_LIMIT)
             .offset(offset * POST_LIMIT)
         )
-        
 
     elif query_filter == "tag":
         new_posts = (db.session
@@ -374,6 +378,7 @@ def get_more_posts():
         }
         for post in new_posts
     ]
+
     return (jsonify(posts))
 
 
@@ -422,8 +427,43 @@ def add_new_tag_api():
             
     return jsonify(response)
 
+@app.get("/api/posts/<int:post_id>/comments")
+def get_comments(post_id):
+    """ Get more comments for current post. """
 
-@app.post("/api/posts/<int:post_id>/comment")
+    form = AddCommentForm()
+
+    offset = int(request.args["offset"])
+
+    comments = (db.session
+        .query(Comment)
+        .filter(
+            Comment.post_id == post_id,
+            Comment.parent_comment_id == -1
+        )
+        .order_by(desc(Comment.score + MAX_AGE_CONSTANT_BOOST / (
+            db.extract('epoch', datetime.now() - Comment.created_at)
+        )))
+        .limit(COMMENT_LIMIT)
+        .offset(offset * COMMENT_LIMIT)
+    )
+
+    response = [
+        {
+            "html": render_template(
+                "comment.html", 
+                comment=comment,
+                form=form
+            )
+        }
+        for comment in comments
+    ]
+
+    return jsonify(response)
+
+
+
+@app.post("/api/posts/<int:post_id>/comments")
 def add_comment(post_id):
     """ 
     POSTs a new comment to the current post; 

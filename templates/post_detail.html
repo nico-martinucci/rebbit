@@ -43,15 +43,17 @@
     
         {% endfor %}
     
-        <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-2">submit</button>
+        <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-3">Submit</button>
     </form>
 </article>
 {% endif %}
 
-<section id="comments">
+<section id="comments" data-pages="1">
     {% for comment in parent_comments %}
     {% include "comment.html" %}
     {% endfor %}
 </section>
+
+<button id="load-comments" class="btn btn-sm btn-outline-primary m-2">Load More</button>
 
 {% endblock %}
