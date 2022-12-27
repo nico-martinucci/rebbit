@@ -29,7 +29,7 @@ app.config['SECRET_KEY'] = 'tacosandburritos'
 CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 MAX_AGE_CONSTANT_BOOST = 5
-POST_LIMIT = 2
+POST_LIMIT = 20
 
 connect_db(app)
 # db.drop_all()
@@ -109,11 +109,6 @@ def show_home_page():
         .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
         .limit(POST_LIMIT)
     )
-    # all_posts = (db.session
-    #     .query(Post)
-    #     .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
-    #     .limit(POST_LIMIT)
-    # )
 
     return render_template("index.html", posts=all_posts)
 

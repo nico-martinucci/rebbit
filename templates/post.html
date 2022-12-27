@@ -25,7 +25,7 @@
                 {% else %}    
                     <a href="/login"><i class="bi bi-arrow-down-circle" style="color: lightgray"></i></a>
                 {% endif %}
-                <a href="/posts/{{post.id}}">comments</a> | 
+                <a href="/posts/{{post.id}}">comments ({{post.comments | length}})</a> | 
                 posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
                 by <a href="/users/{{post.user.username}}">{{post.user.username}}</a>
                 {% if post.tag_list %}
