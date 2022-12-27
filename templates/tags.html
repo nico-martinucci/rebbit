@@ -11,7 +11,7 @@
 </div>
 
 {% if g.user %}
-<button type="button" class="btn btn-primary btn-sm m-2 p-2" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
+<button type="button" class="btn btn-primary btn-sm m-2" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
     Add a new tag
 </button>
 {% endif %}
@@ -25,6 +25,9 @@
                 <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
             </div>
             <div class="modal-body">
+                <div id="modal-flash-messages">
+
+                </div>
                 <form class="m-2 p-2" id="add-tag-form">
                     {{ form.hidden_tag() }} <!--add type=hidden form fields -->
 

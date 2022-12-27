@@ -7,10 +7,12 @@
 <h3 class="m-2 p-2">posts tagged "{{tag.tag}}"</h3>
 <h6 class="m-2 p-2">{{tag.description}}</h6>
 
-<section>
+<section id="posts" data-pages="1" data-filter="tag" data-filter-info="{{tag.tag}}">
     {% for post in posts %}
         {% include "post.html" %}
     {% endfor %}
 </section>
+
+<button id="load-posts" class="btn btn-sm btn-outline-primary m-2">Load More</button>
 
 {% endblock %}

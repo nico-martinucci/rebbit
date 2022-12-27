@@ -29,7 +29,7 @@ app.config['SECRET_KEY'] = 'tacosandburritos'
 CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 MAX_AGE_CONSTANT_BOOST = 5
-POST_LIMIT = 20
+POST_LIMIT = 2
 
 connect_db(app)
 # db.drop_all()
@@ -109,6 +109,11 @@ def show_home_page():
         .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
         .limit(POST_LIMIT)
     )
+    # all_posts = (db.session
+    #     .query(Post)
+    #     .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
+    #     .limit(POST_LIMIT)
+    # )
 
     return render_template("index.html", posts=all_posts)
 
@@ -198,9 +203,17 @@ def get_user(username):
     """ Gets page for a specific user. """
 
     user = User.query.filter_by(username=username).one()
-    posts = user.posts
 
-    return render_template("user.html", user=user, posts=posts)
+    user_posts = (db.session
+        .query(Post)
+        .filter(Post.user.has(User.username == user.username))
+        .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (
+            db.extract('epoch', datetime.now() - Post.created_at)
+        )))
+        .limit(POST_LIMIT)
+    )
+
+    return render_template("user.html", user=user, posts=user_posts)
 
 
 @app.get("/tags")
@@ -223,8 +236,17 @@ def show_tag_detail(tag_name):
     """ Shows details (description and posts) for passed tag. """
 
     tag = Tag.query.filter(Tag.tag == tag_name).one()
-    
-    return render_template("tag_detail.html", tag=tag, posts=tag.posts)
+
+    tagged_posts = (db.session
+        .query(Post)
+        .filter(Post.tags.any(Tag.tag == tag.tag))
+        .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (
+            db.extract('epoch', datetime.now() - Post.created_at)
+        )))
+        .limit(POST_LIMIT)
+    )
+
+    return render_template("tag_detail.html", tag=tag, posts=tagged_posts)
 
 
 @app.route("/add-post", methods=["GET", "POST"])
@@ -310,15 +332,43 @@ def get_more_posts():
     """ Get more posts for current page. """
 
     offset = int(request.args["offset"])
+    query_filter = request.args["filter"]
+    filter_info = request.args["info"]
+
+    new_posts = []
 
     # currently might repeat existing posts - need to find a way to exclude 
     # posts already on the page
-    new_posts = (db.session
-        .query(Post)
-        .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
-        .limit(POST_LIMIT)
-        .offset(offset * POST_LIMIT)
-    )
+    if query_filter == "none":
+        new_posts = (db.session
+            .query(Post)
+            .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
+            .limit(POST_LIMIT)
+            .offset(offset * POST_LIMIT)
+        )
+
+    elif query_filter == "user":
+        new_posts = (db.session
+            .query(Post)
+            .filter(Post.user.has(User.username == filter_info))
+            .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (
+                db.extract('epoch', datetime.now() - Post.created_at)
+            )))
+            .limit(POST_LIMIT)
+            .offset(offset * POST_LIMIT)
+        )
+        
+
+    elif query_filter == "tag":
+        new_posts = (db.session
+            .query(Post)
+            .filter(Post.tags.any(Tag.tag == filter_info))
+            .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (
+                db.extract('epoch', datetime.now() - Post.created_at)
+            )))
+            .limit(POST_LIMIT)
+            .offset(offset * POST_LIMIT)
+        )
 
     posts = [
         {
@@ -342,21 +392,40 @@ def add_new_tag_api():
         tag = form.tag.data
         description = form.description.data
 
-        new_tag = Tag(tag=tag, description=description)
-
-        db.session.add(new_tag)
-        db.session.commit()
-
-        # flash("tag added!", "success")
-        response = {
-            "tag": new_tag.tag,
-            "flash": {
-                "message": "new tag successfully added!",
-                "style": "success"
+        if Tag.query.filter(Tag.tag == tag).one_or_none():
+            response = {
+                "status": "duplicate",
+                "flash": {
+                    "message": "tag already exists!",
+                    "style": "warning"
+                }
             }
-        }
 
-        return jsonify(response)
+        else:
+            new_tag = Tag(tag=tag, description=description)
+
+            db.session.add(new_tag)
+            db.session.commit()
+
+            response = {
+                "status": "success",
+                "tag": new_tag.tag,
+                "flash": {
+                    "message": "new tag successfully added!",
+                    "style": "success"
+                }
+            }
+
+    else:
+        response = {
+            "status": "error",
+            "flash": {
+                    "message": "required information missing!",
+                    "style": "danger"
+                }
+        }
+            
+    return jsonify(response)
 
 
 @app.post("/api/posts/<int:post_id>/comment")
@@ -384,7 +453,11 @@ def add_comment(post_id):
                 "comment.html", 
                 comment=new_comment, 
                 form=AddCommentForm()
-            )
+            ),
+            "flash": {
+                "message": "new comment successfully added!",
+                "style": "success"
+            }
         }
 
         return jsonify(response)

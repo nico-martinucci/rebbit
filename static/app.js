@@ -3,7 +3,20 @@
 const API_ENDPOINT_URL = "http://localhost:5000/api";
 const mytoken = "{{ csrf_token() }}";
 
-const $flashMessages = $("#flash-messages")
+const FLASH_MESSAGE_LIFE_MILLISECONDS = 3000;
+
+const $topFlashMessages = $("#top-flash-messages")
+const $botFlashMessages = $("#bot-flash-messages")
+const $modalFlashMessages = $("#modal-flash-messages")
+
+
+// ****************************************************************************
+// LISTENER FOR PAGE LOAD
+
+$(window).on("load", () => {
+    clearFlashMessages();
+})
+
 
 // ****************************************************************************
 // LISTENERS/FUNCTIONS FOR GETTING POSTS
@@ -18,7 +31,7 @@ async function handleGetMorePosts() {
         const pageCount = $postList.data("pages");
         $postList.data("pages", pageCount + 1);
     } else {
-        toastr["success"]("all posts loaded!", "no more posts");
+        flashMessage("success", "all posts loaded!", "bot");
         $loadPostsButton.addClass("d-none");
     }
 }
@@ -30,7 +43,9 @@ async function getPosts() {
         `${API_ENDPOINT_URL}/posts`,
         {
             params: {
-                offset: $postList.data("pages")
+                offset: $postList.data("pages"),
+                filter: $postList.data("filter"),
+                info: $postList.data("filter-info")
             }
         }
     )
@@ -39,7 +54,6 @@ async function getPosts() {
 }
 
 function updateDOMWithPosts(posts) {
-    console.log(posts)
     for (let post of posts) {
         $postList.append($(post.html));
     }
@@ -56,15 +70,14 @@ const $addTagModal = $("#add-tag-modal")
 
 async function handleNewTagFormSubmit(event) {
     event.preventDefault();
-    const newTag = await postNewTag();
-    updateDOMWithNewTag(newTag.tag);
-    $addTagModal.modal("hide");
-    // TODO: change this so it only fires if successful
-    $flashMessages.html($(`
-        <div class="alert alert-${newTag.flash.style}">
-            ${newTag.flash.message}
-        </div>
-    `))
+    const response = await postNewTag();
+    if (response.status === "success") {
+        updateDOMWithNewTag(response.tag);
+        $addTagModal.modal("hide");
+        flashMessage(response.flash.style, response.flash.message, "top");
+    } else {
+        flashMessage(response.flash.style, response.flash.message, "modal");
+    }
 }
 
 $addTagButton.on("click", handleNewTagFormSubmit)
@@ -83,7 +96,12 @@ async function postNewTag() {
 }
 
 function updateDOMWithNewTag(newTag) {
-    $tagList.prepend(`<a class="btn btn-sm btn-info m-1" href="/tags/${newTag}">${newTag} (0)</a>`);
+    $tagList.prepend(`
+        <a class="btn btn-sm btn-info m-1" href="/tags/${newTag}">
+            ${newTag} (0)
+        </a>`
+    );
+
     $tag.val("");
     $description.val("");
 }
@@ -110,7 +128,7 @@ async function handleNewCommentFormSubmit(event) {
 
     updatedDOMWithNewComment(commentData.html, parentCommentId, $submitButton);
     // TODO: change this so it only fires if successful
-    toastr["success"]("new comment succesfully added!", "comment added")
+    flashMessage(commentData.flash.style, commentData.flash.message, "top");
 }
 
 $("body").on("click", ".add-comment", handleNewCommentFormSubmit);
@@ -274,10 +292,14 @@ async function getUrlData() {
 function toggleVoteIconOn(event) {
     const icon = $(event.target);
     if (icon.hasClass("bi-arrow-up-circle")) {
-        $(event.target).toggleClass("bi-arrow-up-circle").toggleClass("bi-arrow-up-circle-fill")
+        $(event.target)
+            .toggleClass("bi-arrow-up-circle")
+            .toggleClass("bi-arrow-up-circle-fill")
     }
     if (icon.hasClass("bi-arrow-down-circle")) {
-        $(event.target).toggleClass("bi-arrow-down-circle").toggleClass("bi-arrow-down-circle-fill")
+        $(event.target)
+            .toggleClass("bi-arrow-down-circle")
+            .toggleClass("bi-arrow-down-circle-fill")
     }
 }
 
@@ -291,10 +313,14 @@ $("body").on("mouseover", ".vote", toggleVoteIconOn)
 function toggleVoteIconOff(event) {
     const icon = $(event.target);
     if (icon.hasClass("bi-arrow-up-circle-fill")) {
-        $(event.target).toggleClass("bi-arrow-up-circle").toggleClass("bi-arrow-up-circle-fill")
+        $(event.target)
+            .toggleClass("bi-arrow-up-circle")
+            .toggleClass("bi-arrow-up-circle-fill")
     }
     if (icon.hasClass("bi-arrow-down-circle-fill")) {
-        $(event.target).toggleClass("bi-arrow-down-circle").toggleClass("bi-arrow-down-circle-fill")
+        $(event.target)
+            .toggleClass("bi-arrow-down-circle")
+            .toggleClass("bi-arrow-down-circle-fill")
     }
 }
 
@@ -357,4 +383,48 @@ function updateDOMWithVoteInfo(newScore, $voteButton) {
         $voteButton.toggleClass("text-danger");
         $voteButton.siblings(".bi-arrow-up-circle").removeClass("text-primary")
     }
+}
+
+/**
+ * adds a flask-style flash message to the provided flash message location
+ * @param {string} style - Bootstrap keyword for style of message (e.g. 
+ * "success", "warning", etc.)
+ * @param {string} message - message to display
+ * @param {string} loc - location of message - currently "top", "bot", or 
+ * "modal"
+ */
+function flashMessage(style, message, loc) {
+    if (loc === "top") {
+        $topFlashMessages.html($(`
+            <div class="alert alert-${style}">
+                ${message}
+            </div>
+        `))
+    } else if (loc === "bot") {
+        $botFlashMessages.html($(`
+            <div class="alert alert-${style}">
+                ${message}
+            </div>
+        `))
+    } else if (loc === "modal") {
+        $modalFlashMessages.html($(`
+            <div class="alert alert-${style}">
+                ${message}
+            </div>
+        `))
+    }
+
+    clearFlashMessages();
+}
+
+/**
+ * clears flash messages on the screen after a given lifespan, defined in the
+ * constant
+ */
+function clearFlashMessages() {
+    setTimeout(()=> {
+        $topFlashMessages.empty()
+        $botFlashMessages.empty()
+        $modalFlashMessages.empty()
+    }, FLASH_MESSAGE_LIFE_MILLISECONDS)
 }
