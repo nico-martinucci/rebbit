@@ -4,6 +4,46 @@ const API_ENDPOINT_URL = "http://localhost:5000/api";
 const mytoken = "{{ csrf_token() }}";
 
 // ****************************************************************************
+// LISTENERS/FUNCTIONS FOR GETTING POSTS
+
+const $postList = $("#posts");
+const $loadPostsButton = $("#load-posts")
+
+async function handleGetMorePosts() {
+    const posts = await getPosts();
+    if (posts.length) {
+        updateDOMWithPosts(posts);
+        const pageCount = $postList.data("pages");
+        $postList.data("pages", pageCount + 1);
+    } else {
+        toastr["success"]("all posts loaded!", "no more posts");
+        $loadPostsButton.addClass("d-none");
+    }
+}
+
+$loadPostsButton.on("click", handleGetMorePosts);
+
+async function getPosts() {
+    const response = await axios.get(
+        `${API_ENDPOINT_URL}/posts`,
+        {
+            params: {
+                offset: $postList.data("pages")
+            }
+        }
+    )
+
+    return response.data;
+}
+
+function updateDOMWithPosts(posts) {
+    console.log(posts)
+    for (let post of posts) {
+        $postList.append($(post.html));
+    }
+}
+
+// ****************************************************************************
 // LISTENERS/FUNCTIONS FOR ADDING A NEW TAG
 
 const $addTagButton = $("#add-tag-button");

@@ -3,16 +3,24 @@
         <p class="card-text my-0">{{comment.content}}</p>
         <p class="card-text my-0">
             <small class="text-muted">
-                {% if comment.id in g.liked_comment_ids %}
-                <i class="vote bi bi-arrow-up-circle text-primary" data-vote="1"></i>
+                {% if g.user %}
+                    {% if comment.id in g.liked_comment_ids %}
+                    <i class="vote bi bi-arrow-up-circle text-primary" data-vote="1"></i>
+                    {% else %}
+                    <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
+                    {% endif %}
                 {% else %}
-                <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
+                    <a href="/login"><i class="bi bi-arrow-up-circle" style="color: lightgray"></i></a>
                 {% endif %}
                 <span class="vote-total"><b>{{comment.score}}</b></span>
-                {% if comment.id in g.disliked_comment_ids %}
-                <i class="vote bi bi-arrow-down-circle text-danger" data-vote="-1"></i> | 
+                {% if g.user %}
+                    {% if comment.id in g.disliked_comment_ids %}
+                    <i class="vote bi bi-arrow-down-circle text-danger" data-vote="-1"></i> | 
+                    {% else %}
+                    <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
+                    {% endif %}
                 {% else %}
-                <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
+                    <a href="/login"><i class="bi bi-arrow-down-circle" style="color: lightgray"></i></a>
                 {% endif %}
                 by <a href="/users/{{comment.user.id}}">{{comment.user.username}}</a> | 
                 posted {{comment.created_at.strftime("%I:%M %p on %a %B %d, %Y")}}

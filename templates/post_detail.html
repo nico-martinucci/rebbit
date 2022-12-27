@@ -24,6 +24,7 @@
     </div>
 </article>
 
+{% if g.user %}
 <article id="add-parent-comment" data-id="-1">
     <form class="m-2 p-2">
         {{ form.hidden_tag() }} <!--add type=hidden form fields -->
@@ -45,6 +46,7 @@
         <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-2">submit</button>
     </form>
 </article>
+{% endif %}
 
 <section id="comments">
     {% for comment in parent_comments %}

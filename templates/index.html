@@ -4,10 +4,12 @@
 
 {% block content %}
 
-<section id="posts">
+<section id="posts" data-pages="1">
     {% for post in posts %}
         {% include "post.html" %}
     {% endfor %}
 </section>
+
+<button id="load-posts" class="btn btn-sm btn-outline-primary m-2">Load More</button>
 
 {% endblock %}

@@ -29,6 +29,7 @@ app.config['SECRET_KEY'] = 'tacosandburritos'
 CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 MAX_AGE_CONSTANT_BOOST = 5
+POST_LIMIT = 20
 
 connect_db(app)
 # db.drop_all()
@@ -103,9 +104,11 @@ def get_list_of_liked_content():
 def show_home_page():
     """ Renders home page of posts. """
 
-    all_posts = db.session.query(Post).order_by(desc(
-        Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))
-    ))
+    all_posts = (db.session
+        .query(Post)
+        .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
+        .limit(POST_LIMIT)
+    )
 
     return render_template("index.html", posts=all_posts)
 
@@ -269,7 +272,7 @@ def add_new_post():
 
         flash("post added!", "success")
         # later, should redirect to post detail page
-        return redirect("/")
+        return redirect(f"/posts/{new_post.id}")
         
     else:
         return render_template("add_post.html", form=form)
@@ -301,11 +304,37 @@ def view_post(post_id):
 ###############################################################################
 # API ROUTES
 
+
+@app.get("/api/posts")
+def get_more_posts():
+    """ Get more posts for current page. """
+
+    offset = int(request.args["offset"])
+
+    # currently might repeat existing posts - need to find a way to exclude 
+    # posts already on the page
+    new_posts = (db.session
+        .query(Post)
+        .order_by(desc(Post.score + MAX_AGE_CONSTANT_BOOST / (db.extract('epoch', datetime.now() - Post.created_at))))
+        .limit(POST_LIMIT)
+        .offset(offset * POST_LIMIT)
+    )
+
+    posts = [
+        {
+            "html": render_template(
+                "post.html", 
+                post=post
+            )
+        }
+        for post in new_posts
+    ]
+    return (jsonify(posts))
+
+
 @app.post("/api/tags")
 def add_new_tag_api():
     """ POSTs a new tag from tag pop-up modal. """
-
-    # TODO: add in authentication for adding a tag
 
     form = AddTagsForm(obj=request.json)
 
@@ -332,8 +361,6 @@ def add_comment(post_id):
     POSTs a new comment to the current post; 
     returns an injectable HTML snippet of the comment. 
     """
-
-    # TODO: add in authentication for adding a comment
 
     form = AddCommentForm(obj=request.json)
 
@@ -414,8 +441,6 @@ def handle_voting(content, content_id):
 
     vote_score = int(request.json["vote"]) # stores whether this is an "up" or "down" vote
     response = {}
-
-    # TODO: add in authentication for voting
 
     if content == "post":
         target_post = Post.query.get(content_id)   
