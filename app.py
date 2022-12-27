@@ -349,7 +349,11 @@ def add_new_tag_api():
 
         # flash("tag added!", "success")
         response = {
-            "tag": new_tag.tag
+            "tag": new_tag.tag,
+            "flash": {
+                "message": "new tag successfully added!",
+                "style": "success"
+            }
         }
 
         return jsonify(response)

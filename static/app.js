@@ -3,6 +3,8 @@
 const API_ENDPOINT_URL = "http://localhost:5000/api";
 const mytoken = "{{ csrf_token() }}";
 
+const $flashMessages = $("#flash-messages")
+
 // ****************************************************************************
 // LISTENERS/FUNCTIONS FOR GETTING POSTS
 
@@ -55,10 +57,14 @@ const $addTagModal = $("#add-tag-modal")
 async function handleNewTagFormSubmit(event) {
     event.preventDefault();
     const newTag = await postNewTag();
-    updateDOMWithNewTag(newTag);
+    updateDOMWithNewTag(newTag.tag);
     $addTagModal.modal("hide");
     // TODO: change this so it only fires if successful
-    toastr["success"]("new tag succesfully added!", "tag added")
+    $flashMessages.html($(`
+        <div class="alert alert-${newTag.flash.style}">
+            ${newTag.flash.message}
+        </div>
+    `))
 }
 
 $addTagButton.on("click", handleNewTagFormSubmit)
@@ -73,11 +79,11 @@ async function postNewTag() {
         }
     })
     
-    return response.data.tag;
+    return response.data;
 }
 
 function updateDOMWithNewTag(newTag) {
-    $tagList.prepend(`<li><a href="/tags/${newTag}" >${newTag}</a> (0)</li>`);
+    $tagList.prepend(`<a class="btn btn-sm btn-info m-1" href="/tags/${newTag}">${newTag} (0)</a>`);
     $tag.val("");
     $description.val("");
 }
