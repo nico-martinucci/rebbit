@@ -11,8 +11,8 @@ from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 # from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Post, Comment, Tag, UserPostVote, UserCommentVote, PostTag
-from forms import (AddPostForm, AddTagsForm, AddCommentForm, LoginForm, 
-    SignupForm, CSRFProtectForm)
+from forms import (AddPostForm, AddTagsForm, SearchTagsForm, AddCommentForm, 
+    LoginForm, SignupForm, CSRFProtectForm)
 from bs4 import BeautifulSoup as bs
 
 app = Flask(__name__)
@@ -224,7 +224,12 @@ def get_tags_page():
         .all()
     )
     
-    return render_template("tags.html", form=AddTagsForm(), tags=tags)
+    return render_template(
+        "tags.html", 
+        search_form=SearchTagsForm(),
+        add_form=AddTagsForm(), 
+        tags=tags
+    )
 
 
 @app.get("/tags/<tag_name>")

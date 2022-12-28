@@ -41,7 +41,7 @@ class AddPostForm(FlaskForm):
 
 
 class AddTagsForm(FlaskForm):
-    """ For for adding new tags to the database. """
+    """ Form for adding new tags to the database. """
 
     tag = StringField(
         "Tag: ",
@@ -55,6 +55,13 @@ class AddTagsForm(FlaskForm):
         render_kw={"class": WIDE_FORM_INPUT_CLASSES, "rows": "3"}
     )
 
+class SearchTagsForm(FlaskForm):
+    """ Form for searching for tags in real-time. """
+
+    tag = StringField(
+        "Search: ",
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
+    )
 
 class AddCommentForm(FlaskForm):
     """ Form for adding a new comment to a post. """

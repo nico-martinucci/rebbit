@@ -4,6 +4,25 @@
 
 {% block content %}
 <h3 class="m-2 p-2">explore tags</h3>
+
+<form class="m-2 p-2" id="search-tag-form">
+    {{ search_form.hidden_tag() }} <!--add type=hidden form fields -->
+
+    {% for field in search_form
+    if field.widget.input_type != 'hidden' %}
+
+    <div>
+        {{ field.label }}
+        {{ field }}
+
+        {% for error in field.errors %}
+        {{ error }}
+        {% endfor %}
+    </div>
+
+    {% endfor %}
+</form>
+
 <div class="m-1" id="tag-list">
     {% for tag in tags %}
         <a class="btn btn-sm btn-outline-secondary m-1" href="/tags/{{tag.tag}}">{{tag.tag}} ({{tag.count}})</a> 
@@ -29,9 +48,9 @@
 
                 </div>
                 <form class="m-2 p-2" id="add-tag-form">
-                    {{ form.hidden_tag() }} <!--add type=hidden form fields -->
+                    {{ add_form.hidden_tag() }} <!--add type=hidden form fields -->
 
-                    {% for field in form
+                    {% for field in add_form
                     if field.widget.input_type != 'hidden' %}
 
                     <div>
