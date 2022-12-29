@@ -29,7 +29,7 @@ app.config['SECRET_KEY'] = 'tacosandburritos'
 CURR_USER_KEY = "curr_user"
 PLACEHOLDER_IMAGE_URL = "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
 MAX_AGE_CONSTANT_BOOST = 5
-POST_LIMIT = 20
+POST_LIMIT = 8
 COMMENT_LIMIT = 3
 
 connect_db(app)

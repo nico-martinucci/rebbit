@@ -5,7 +5,12 @@
 // LISTENERS/FUNCTIONS FOR GETTING POSTS
 
 const $postList = $("#posts");
-const $loadPostsButton = $("#load-posts")
+const $loadPostsButton = $("#load-posts");
+
+let morePostsToLoad = true;
+let loadingPosts = false;
+
+const INFINITE_SCROLL_PAGE_BOTTOM_ADJUSTMENT = 100;
 
 /**
  * controller/callback for getting more posts and adding them to the bottom
@@ -13,6 +18,7 @@ const $loadPostsButton = $("#load-posts")
  * all post pages - home, user, tags.
  */
 async function handleGetMorePosts() {
+    loadingPosts = true;
     const posts = await getPosts();
 
     if (posts.length) {
@@ -22,10 +28,32 @@ async function handleGetMorePosts() {
     } else {
         flashMessage("success", "all posts loaded!", "bot");
         $loadPostsButton.addClass("d-none");
+
+        morePostsToLoad = false;
     }
+
+    loadingPosts = false;
 }
 
 $loadPostsButton.on("click", handleGetMorePosts);
+
+/**
+ * intermediate function for infinite scroll functionality when the bottom of 
+ * the page is reached; callback for the $(window).scroll event.
+ */
+function infiniteScroll() {
+    const atBottom = (
+        $(window).scrollTop() + $(window).height() > 
+        $(document).height() - INFINITE_SCROLL_PAGE_BOTTOM_ADJUSTMENT
+    );
+
+    if(atBottom && morePostsToLoad && !loadingPosts) {
+        console.log("infinite scroll")
+        handleGetMorePosts();
+    }
+}
+
+$(window).on("scroll", infiniteScroll);
 
 /**
  * AJAX get request to get more posts.

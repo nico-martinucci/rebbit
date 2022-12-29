@@ -14,7 +14,8 @@ const $openTagModal = $("#open-tag-modal")
 $openTagModal.hide();
 
 /**
- * 
+ * callback for button to show the add new tag form; auto-populates the tag 
+ * name field in the modal based on the search term.
  */
 function addNewTagNameToModal() {
     $tag.val($tagSearch.val());
@@ -23,8 +24,8 @@ function addNewTagNameToModal() {
 $openTagModal.on("click", addNewTagNameToModal);
 
 /**
- * 
- * @param {*} event 
+ * controller/callback for adding a new tag from the modal pop-up
+ * @param {event} event 
  */
 async function handleNewTagFormSubmit(event) {
     event.preventDefault();
@@ -175,6 +176,10 @@ function handleChooseTagForPost(event) {
 
 $tagList.on("click", ".add-tag-to-post", handleChooseTagForPost);
 
+/**
+ * 
+ * @param {*} tagId 
+ */
 function addTagIdToHiddenInput(tagId) {
     if ($tagIdsInput.val()) {
         $tagIdsInput.val($tagIdsInput.val() + `,${tagId}`);
