@@ -58,7 +58,7 @@ class AddTagsForm(FlaskForm):
 class SearchTagsForm(FlaskForm):
     """ Form for searching for tags in real-time. """
 
-    tag = StringField(
+    tag_search = StringField(
         "Search: ",
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )

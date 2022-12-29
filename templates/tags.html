@@ -23,14 +23,14 @@
     {% endfor %}
 </form>
 
-<div class="m-1" id="tag-list">
+<div class="m-3" id="tag-list">
     {% for tag in tags %}
-        <a class="btn btn-sm btn-outline-secondary m-1" href="/tags/{{tag.tag}}">{{tag.tag}} ({{tag.count}})</a> 
+        {% include "tag_button.html" %} 
     {% endfor %}
 </div>
 
 {% if g.user %}
-<button type="button" class="btn btn-primary btn-sm m-2" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
+<button type="button" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
     Add a new tag
 </button>
 {% endif %}

@@ -432,6 +432,35 @@ def add_new_tag_api():
             
     return jsonify(response)
 
+@app.get("/api/tags")
+def get_tag_search_results():
+    """ Get tag search results from from front-end input. """
+
+    term = request.args["term"]
+    search_term = "%{}%".format(term)
+
+    tags = (db.session
+        .query(Tag.tag, func.count(PostTag.post_id).label("count"))
+        .join(Tag.tagged_post_ids, isouter=True)
+        .filter(Tag.tag.like(search_term))
+        .group_by(Tag.tag)
+        .order_by(desc(func.count(PostTag.post_id)))
+        .all()
+    )
+
+    response = [
+        {
+            "html": render_template(
+                "tag_button.html",
+                tag=tag
+            )
+        }
+        for tag in tags
+    ]
+
+    return jsonify(response)
+
+
 @app.get("/api/posts/<int:post_id>/comments")
 def get_comments(post_id):
     """ Get more comments for current post. """
@@ -465,7 +494,6 @@ def get_comments(post_id):
     ]
 
     return jsonify(response)
-
 
 
 @app.post("/api/posts/<int:post_id>/comments")
