@@ -6,6 +6,7 @@
 
 <h3 class="m-2 p-2">posts by {{user.username}}</h3>
 
+{% if posts | length %}
 <section id="posts" data-pages="1" data-filter="user" data-filter-info="{{user.username}}">
     {% for post in posts %}
         {% include "post.html" %}
@@ -13,5 +14,8 @@
 </section>
 
 <button id="load-posts" class="btn btn-sm btn-outline-primary m-2">Load More</button>
+{% else %}
+    <h6 class="text-secondary m-2 p-2">there doesn't seem to be anything here...</h6>
+{% endif %}
 
 {% endblock %}

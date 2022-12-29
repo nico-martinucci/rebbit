@@ -207,6 +207,7 @@ def get_user(username):
             db.extract('epoch', datetime.now() - Post.created_at)
         )))
         .limit(POST_LIMIT)
+        .all()
     )
 
     return render_template("user.html", user=user, posts=user_posts)
@@ -245,6 +246,7 @@ def show_tag_detail(tag_name):
             db.extract('epoch', datetime.now() - Post.created_at)
         )))
         .limit(POST_LIMIT)
+        .all()
     )
 
     return render_template("tag_detail.html", tag=tag, posts=tagged_posts)

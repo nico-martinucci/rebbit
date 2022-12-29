@@ -45,8 +45,10 @@ async function handleNewTagFormSubmit(event) {
 $addTagButton.on("click", handleNewTagFormSubmit)
 
 /**
- * 
- * @returns 
+ * handles AJAX post to API for a new tag. response varries depending if post 
+ * was successful or not. successful post will include the tag and its ID; 
+ * unsuccesful will include flash message, rendered above.
+ * @returns data object
  */
 async function postNewTag() {
     const response = await axios({
@@ -62,8 +64,9 @@ async function postNewTag() {
 }
 
 /**
- * 
- * @param {*} newTag 
+ * updates DOM with the new tag; tag button functionality will depend on where
+ * new tag is being added ("tags" or "post" page).
+ * @param {object} newTag - the tag object returned from the API. 
  */
 function updateDOMWithNewTag(newTag) {
     if ($tagSearch.data("loc") === "tags") {
@@ -93,7 +96,8 @@ function updateDOMWithNewTag(newTag) {
 const $tagSearch = $("#tag_search");
 
 /**
- * 
+ * controller/callback for typing in the tag search field; updates display list
+ * of tags based on search.
  */
 async function handleTagSearch() {
     const response = await getTagSearchResults();
@@ -108,8 +112,9 @@ async function handleTagSearch() {
 $tagSearch.on("keyup", handleTagSearch);
 
 /**
- * 
- * @returns 
+ * handles AJAX get request for list of tags that match the provided search 
+ * term/snippet.
+ * @returns data object of rendered HTML to add to the page.
  */
 async function getTagSearchResults() {
     const response = await axios.get(
@@ -126,8 +131,8 @@ async function getTagSearchResults() {
 }
 
 /**
- * 
- * @param {*} tags 
+ * updates DOM with results of tag search
+ * @param {arrau} tags - array of rendered HTML for each tag. 
  */
 function updatedDOMWithSearchTags(tags) {
     $tagList.empty();
@@ -153,7 +158,9 @@ function updatedDOMWithSearchTags(tags) {
 const $tagIdsInput = $("#tag_ids");
 
 /**
- * 
+ * controller/callback for clicking tag buttons on the "post" page; checks if 
+ * clicked tag is already in the list of tag ids, and either adds/removes
+ * accordingly.
  */
 function handleChooseTagForPost(event) {
     event.preventDefault();
@@ -177,8 +184,10 @@ function handleChooseTagForPost(event) {
 $tagList.on("click", ".add-tag-to-post", handleChooseTagForPost);
 
 /**
- * 
- * @param {*} tagId 
+ * adds a clicked tag's id to the list included in the hidden form input,
+ * which is parsed on the server side for adding the correct tags to the new
+ * post.
+ * @param {integer} tagId - cliked tag's ID 
  */
 function addTagIdToHiddenInput(tagId) {
     if ($tagIdsInput.val()) {
