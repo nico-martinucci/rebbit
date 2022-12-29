@@ -9,6 +9,18 @@ const $tag = $("#tag");
 const $description = $("#description");
 const $tagList = $("#tag-list");
 const $addTagModal = $("#add-tag-modal")
+const $openTagModal = $("#open-tag-modal")
+
+$openTagModal.hide();
+
+/**
+ * 
+ */
+function addNewTagNameToModal() {
+    $tag.val($tagSearch.val());
+}
+
+$openTagModal.on("click", addNewTagNameToModal);
 
 /**
  * 
@@ -18,8 +30,11 @@ async function handleNewTagFormSubmit(event) {
     event.preventDefault();
     const response = await postNewTag();
     if (response.status === "success") {
-        updateDOMWithNewTag(response.tag);
         $addTagModal.modal("hide");
+        $openTagModal.hide();
+        
+        updateDOMWithNewTag(response);
+
         flashMessage(response.flash.style, response.flash.message, "top");
     } else {
         flashMessage(response.flash.style, response.flash.message, "modal");
@@ -50,11 +65,21 @@ async function postNewTag() {
  * @param {*} newTag 
  */
 function updateDOMWithNewTag(newTag) {
-    $tagList.prepend(`
-        <a class="btn btn-sm btn-info m-1" href="/tags/${newTag}">
-            ${newTag} (0)
-        </a>`
-    );
+    if ($tagSearch.data("loc") === "tags") {
+        $tagList.prepend(`
+            <a class="btn btn-sm btn-info m-1" href="/tags/${newTag.tag}">
+                ${newTag.tag} (0)
+            </a>
+        `);
+    } else if ($tagSearch.data("loc") === "post") {
+        $tagList.prepend(`
+            <a class="add-tag-to-post btn btn-sm btn-info m-1" href="" data-tag-id="${newTag.id}">
+                ${newTag.tag} (0)
+            </a>
+        `);
+
+        addTagIdToHiddenInput(newTag.id);
+    }
 
     $tag.val("");
     $description.val("");
@@ -72,6 +97,11 @@ const $tagSearch = $("#tag_search");
 async function handleTagSearch() {
     const response = await getTagSearchResults();
     updatedDOMWithSearchTags(response);
+    if (response.length) {
+        $openTagModal.hide();
+    } else {
+        $openTagModal.show();
+    }
 }
 
 $tagSearch.on("keyup", handleTagSearch);
@@ -108,7 +138,7 @@ function updatedDOMWithSearchTags(tags) {
         const pickedTags = $tagIdsInput.val().split(",");
         let $btn = $(elem);
         let tagId = $btn.data("tag-id");
-        console.log("picked tags: ", pickedTags, "; tagId: ", tagId);
+
         if (pickedTags.includes(tagId.toString())) {
             $btn.toggleClass("btn-outline-secondary").toggleClass("btn-info")
         }
@@ -136,16 +166,19 @@ function handleChooseTagForPost(event) {
     if (pickedTags.includes(tagId.toString())) {
         pickedTags.splice(pickedTags.indexOf(tagId), 1);
         $tagIdsInput.val(pickedTags.join(","));
-        console.log("picked tags: ", pickedTags, "; tagId: ", tagId);
+
         return;
     }
 
+    addTagIdToHiddenInput(tagId);    
+}
+
+$tagList.on("click", ".add-tag-to-post", handleChooseTagForPost);
+
+function addTagIdToHiddenInput(tagId) {
     if ($tagIdsInput.val()) {
         $tagIdsInput.val($tagIdsInput.val() + `,${tagId}`);
     } else {
         $tagIdsInput.val(`${tagId}`)
     }
-
 }
-
-$tagList.on("click", ".add-tag-to-post", handleChooseTagForPost);

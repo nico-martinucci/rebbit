@@ -30,47 +30,13 @@
 </div>
 
 {% if g.user %}
-<button type="button" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
+<button id="open-tag-modal" type="button" style="display: none;" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
     Add a new tag
 </button>
 {% endif %}
 
 
-<div class="modal fade" id="add-tag-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">new tag</h5>
-                <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
-            </div>
-            <div class="modal-body">
-                <div id="modal-flash-messages">
-
-                </div>
-                <form class="m-2 p-2" id="add-tag-form">
-                    {{ add_form.hidden_tag() }} <!--add type=hidden form fields -->
-
-                    {% for field in add_form
-                    if field.widget.input_type != 'hidden' %}
-
-                    <div>
-                        {{ field.label }}
-                        {{ field }}
-
-                        {% for error in field.errors %}
-                        {{ error }}
-                        {% endfor %}
-                    </div>
-
-                    {% endfor %}
-
-                    <button id="add-tag-button" class="btn btn-primary btn-sm" type="submit">Add tag</button>
-                    <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "tag_modal.html" %}
 
 
 

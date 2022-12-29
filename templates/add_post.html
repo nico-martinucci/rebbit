@@ -26,11 +26,16 @@
         {% include "tag_button_no_link.html" %} 
     {% endfor %}
     </div>
+
+    <div>
+        <button id="open-tag-modal" type="button" style="display: none;" class="btn btn-primary btn-sm m-3" data-bs-toggle="modal" data-bs-target="#add-tag-modal">
+            Add a new tag
+        </button>
+    </div>
+
     <button class="btn btn-sm btn-primary" type="submit">Submit</button>
 </form>
 
-<section id="posts">
-
-</section>
+{% include "tag_modal.html" %}
 
 {% endblock %}

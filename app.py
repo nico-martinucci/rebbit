@@ -227,7 +227,7 @@ def get_tags_page():
     return render_template(
         "tags.html", 
         search_form=SearchTagsForm(),
-        add_form=AddTagsForm(), 
+        add_tag_form=AddTagsForm(), 
         tags=tags
     )
 
@@ -300,7 +300,12 @@ def add_new_post():
         return redirect(f"/posts/{new_post.id}")
         
     else:
-        return render_template("add_post.html", form=form, tags=tags)
+        return render_template(
+            "add_post.html", 
+            form=form, 
+            tags=tags,
+            add_tag_form=AddTagsForm()
+        )
 
 
 @app.route("/posts/<int:post_id>", methods=["GET", "POST"])
@@ -452,6 +457,7 @@ def add_new_tag_api():
             response = {
                 "status": "success",
                 "tag": new_tag.tag,
+                "id": new_tag.id,
                 "flash": {
                     "message": "new tag successfully added!",
                     "style": "success"
