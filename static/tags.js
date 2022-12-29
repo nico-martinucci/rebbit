@@ -66,6 +66,9 @@ function updateDOMWithNewTag(newTag) {
 
 const $tagSearch = $("#tag_search");
 
+/**
+ * 
+ */
 async function handleTagSearch() {
     const response = await getTagSearchResults();
     updatedDOMWithSearchTags(response);
@@ -73,12 +76,17 @@ async function handleTagSearch() {
 
 $tagSearch.on("keyup", handleTagSearch);
 
+/**
+ * 
+ * @returns 
+ */
 async function getTagSearchResults() {
     const response = await axios.get(
         `${API_ENDPOINT_URL}/tags`,
         {
             params: {
-                term: $tagSearch.val()
+                term: $tagSearch.val(),
+                loc: $tagSearch.data("loc")
             }
         }
     )
@@ -86,9 +94,58 @@ async function getTagSearchResults() {
     return response.data
 }
 
+/**
+ * 
+ * @param {*} tags 
+ */
 function updatedDOMWithSearchTags(tags) {
     $tagList.empty();
     for (let tag of tags) {
         $tagList.append(tag.html);
     }
+
+    $(".add-tag-to-post").each((i, elem) => {
+        const pickedTags = $tagIdsInput.val().split(",");
+        let $btn = $(elem);
+        let tagId = $btn.data("tag-id");
+        console.log("picked tags: ", pickedTags, "; tagId: ", tagId);
+        if (pickedTags.includes(tagId.toString())) {
+            $btn.toggleClass("btn-outline-secondary").toggleClass("btn-info")
+        }
+    })
 }
+
+
+// *****************************************************************************
+// ADD TAGS TO POST
+
+const $tagIdsInput = $("#tag_ids");
+
+/**
+ * 
+ */
+function handleChooseTagForPost(event) {
+    event.preventDefault();
+    
+    const pickedTags = $tagIdsInput.val().split(",");
+    const $btn = $(event.target);
+    const tagId = $btn.data("tag-id");
+
+    $btn.toggleClass("btn-outline-secondary").toggleClass("btn-info")
+    
+    if (pickedTags.includes(tagId.toString())) {
+        pickedTags.splice(pickedTags.indexOf(tagId), 1);
+        $tagIdsInput.val(pickedTags.join(","));
+        console.log("picked tags: ", pickedTags, "; tagId: ", tagId);
+        return;
+    }
+
+    if ($tagIdsInput.val()) {
+        $tagIdsInput.val($tagIdsInput.val() + `,${tagId}`);
+    } else {
+        $tagIdsInput.val(`${tagId}`)
+    }
+
+}
+
+$tagList.on("click", ".add-tag-to-post", handleChooseTagForPost);

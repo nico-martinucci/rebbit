@@ -12,9 +12,25 @@
         <div class="card-block px-2 m-2">
             <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
             <p class="card-text"><small class="text-muted">
-                <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
-                <span id="vote-total"><b>{{post.votes}}</b></span>
-                <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
+                {% if g.user %}
+                    {% if post.id in g.liked_post_ids %}
+                    <i class="vote bi bi-arrow-up-circle text-primary" data-vote="1"></i>
+                    {% else %}
+                    <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
+                    {% endif %}
+                {% else %}
+                    <a href="/login"><i class="bi bi-arrow-up-circle" style="color: lightgray"></i></a>
+                {% endif %}
+                <span class="vote-total"><b>{{post.score}}</b></span>
+                {% if g.user %}
+                    {% if post.id in g.disliked_post_ids %}
+                    <i class="vote bi bi-arrow-down-circle text-danger" data-vote="-1"></i> | 
+                    {% else %}
+                    <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
+                    {% endif %}
+                {% else %}    
+                    <a href="/login"><i class="bi bi-arrow-down-circle" style="color: lightgray"></i></a> |
+                {% endif %}                
                 by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
                 posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
                 tagged in {% for tag in post.tag_list %}<a href="#"> {{ tag }} </a>{% endfor %}</small>

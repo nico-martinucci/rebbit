@@ -33,10 +33,19 @@ class AddPostForm(FlaskForm):
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "rows": "3"}
     )
 
-    tag_ids = SelectMultipleField(
-        "Tags: ",
-        coerce=int,
-        render_kw={"class": SHORT_FORM_INPUT_CLASSES}
+    # tag_ids = SelectMultipleField(
+    #     "Search Tags: ",
+    #     coerce=int,
+    #     render_kw={"class": SHORT_FORM_INPUT_CLASSES}
+    # )
+
+    tag_search = StringField(
+        "Search Tags: ",
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "data-loc": "post"}
+    )
+
+    tag_ids = HiddenField(
+
     )
 
 
@@ -60,7 +69,7 @@ class SearchTagsForm(FlaskForm):
 
     tag_search = StringField(
         "Search: ",
-        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
+        render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "data-loc": "tags"}
     )
 
 class AddCommentForm(FlaskForm):

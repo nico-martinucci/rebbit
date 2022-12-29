@@ -263,19 +263,18 @@ def add_new_post():
 
     form = AddPostForm()
     current_tags = Tag.query.all()
-    form.tag_ids.choices = [
-        (tag.id, tag.tag)
-        for tag in current_tags
-    ]
+    # form.tag_ids.choices = [
+    #     (tag.id, tag.tag)
+    #     for tag in current_tags
+    # ]
 
     if form.validate_on_submit():
         title = form.title.data
         url = form.url.data
         img_url = form.img_url.data or PLACEHOLDER_IMAGE_URL
         content = form.content.data
-        tag_ids = form.tag_ids.data
+        tag_ids = (form.tag_ids.data).split(",")
 
-        # need to get the current user ID in order to build a post...
         new_post = Post(
             user_id=g.user.id, 
             title=title, 
@@ -387,6 +386,41 @@ def get_more_posts():
     return (jsonify(posts))
 
 
+@app.get("/api/tags")
+def get_tag_search_results():
+    """ Get tag search results from from front-end input. """
+
+    term = request.args["term"]
+    loc = request.args["loc"]
+    search_term = "%{}%".format(term)
+
+    tags = (db.session
+        .query(Tag.tag, Tag.id, func.count(PostTag.post_id).label("count"))
+        .join(Tag.tagged_post_ids, isouter=True)
+        .filter(Tag.tag.like(search_term))
+        .group_by(Tag.tag, Tag.id)
+        .order_by(desc(func.count(PostTag.post_id)))
+        .all()
+    )
+
+    button_template = "tag_button.html"
+
+    if loc == "post":
+        button_template = "tag_button_no_link.html" 
+
+    response = [
+        {
+            "html": render_template(
+                button_template,
+                tag=tag
+            )
+        }
+        for tag in tags
+    ]
+
+    return jsonify(response)
+
+
 @app.post("/api/tags")
 def add_new_tag_api():
     """ POSTs a new tag from tag pop-up modal. """
@@ -430,34 +464,6 @@ def add_new_tag_api():
                 }
         }
             
-    return jsonify(response)
-
-@app.get("/api/tags")
-def get_tag_search_results():
-    """ Get tag search results from from front-end input. """
-
-    term = request.args["term"]
-    search_term = "%{}%".format(term)
-
-    tags = (db.session
-        .query(Tag.tag, func.count(PostTag.post_id).label("count"))
-        .join(Tag.tagged_post_ids, isouter=True)
-        .filter(Tag.tag.like(search_term))
-        .group_by(Tag.tag)
-        .order_by(desc(func.count(PostTag.post_id)))
-        .all()
-    )
-
-    response = [
-        {
-            "html": render_template(
-                "tag_button.html",
-                tag=tag
-            )
-        }
-        for tag in tags
-    ]
-
     return jsonify(response)
 
 

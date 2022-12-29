@@ -23,7 +23,7 @@
                     <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
                     {% endif %}
                 {% else %}    
-                    <a href="/login"><i class="bi bi-arrow-down-circle" style="color: lightgray"></i></a>
+                    <a href="/login"><i class="bi bi-arrow-down-circle" style="color: lightgray"></i></a> |
                 {% endif %}
                 <a href="/posts/{{post.id}}">comments ({{post.comments | length}})</a> | 
                 posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
