@@ -21,7 +21,11 @@
     </div>
 
     {% endfor %}
-    <div id="tag-list" class="m-3"></div>
+    <div id="tag-list" class="m-3">
+    {% for tag in tags %}
+        {% include "tag_button_no_link.html" %} 
+    {% endfor %}
+    </div>
     <button class="btn btn-sm btn-primary" type="submit">Submit</button>
 </form>
 

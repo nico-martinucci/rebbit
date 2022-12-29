@@ -263,10 +263,14 @@ def add_new_post():
 
     form = AddPostForm()
     current_tags = Tag.query.all()
-    # form.tag_ids.choices = [
-    #     (tag.id, tag.tag)
-    #     for tag in current_tags
-    # ]
+
+    tags = (db.session
+        .query(Tag.tag, Tag.id, func.count(PostTag.post_id).label("count"))
+        .join(Tag.tagged_post_ids, isouter=True)
+        .group_by(Tag.tag, Tag.id)
+        .order_by(desc(func.count(PostTag.post_id)))
+        .all()
+    )
 
     if form.validate_on_submit():
         title = form.title.data
@@ -293,11 +297,10 @@ def add_new_post():
         db.session.commit()
 
         flash("post added!", "success")
-        # later, should redirect to post detail page
         return redirect(f"/posts/{new_post.id}")
         
     else:
-        return render_template("add_post.html", form=form)
+        return render_template("add_post.html", form=form, tags=tags)
 
 
 @app.route("/posts/<int:post_id>", methods=["GET", "POST"])
