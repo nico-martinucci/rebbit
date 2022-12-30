@@ -17,6 +17,7 @@ from sqlalchemy.exc import IntegrityError
 from models import db, connect_db, User, Post, Comment, Tag, UserPostVote, UserCommentVote, PostTag
 from forms import (AddPostForm, AddTagsForm, SearchTagsForm, AddCommentForm, 
     LoginForm, SignupForm, CSRFProtectForm)
+from scrubbing import clean_img_url, scrub_title
 from bs4 import BeautifulSoup as bs
 
 app = Flask(__name__)
@@ -315,7 +316,7 @@ def add_new_post():
     if form.validate_on_submit():
         title = form.title.data
         url = form.url.data
-        img_url = form.img_url.data or PLACEHOLDER_IMAGE_URL
+        img_url = form.img_urls.data or PLACEHOLDER_IMAGE_URL
         content = form.content.data
         tag_ids = (form.tag_ids.data).split(",")
 
@@ -615,32 +616,18 @@ def get_url_data():
 
     url = request.args["url"]
     page = requests.get(url)
-
     soup = bs(page.text, 'html.parser')
 
-    """ 
-    For h1:
-    - remove any leading spaces
-     """
+    img_urls = [
+        clean_img_url(img["src"])
+        for img in soup.find_all("img")
+    ]
 
-    """
-    For img:
-    - pick the second image if there is one, first image if not 
-     """
-    imgs = soup.find_all("img")
-
-    # soup.h1.text
-    # soup.img.attrs["src"]
-    # find nav; find next sibling; find first image in that sibling
-
-    img_url = img.attrs["src"]
-
-    # if soup.nav:
-    #     img_url = soup.nav.find_next_sibling().img["src"]
+    # add in a filter to remove any "bad" urls from the list
 
     response = {
         "h1": soup.h1.text,
-        "img_url": img_url
+        "img_urls": img_urls
     }
 
     return jsonify(response)

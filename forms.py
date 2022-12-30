@@ -13,7 +13,10 @@ class AddPostForm(FlaskForm):
     url = StringField(
         "Link: ",
         validators=[URL(), Optional()],
-        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
+        render_kw={
+            "class": STANDARD_FORM_INPUT_CLASSES, 
+            "placeholder": "(Optional)"
+        }
     )
 
     title = StringField(
@@ -22,31 +25,33 @@ class AddPostForm(FlaskForm):
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
     
-    img_url = StringField(
-        "Image: ",
+    # how to allow for custom input, not just those generated from the scrub?
+    img_urls = SelectField(
+        "Select an Image: ",
         validators=[URL(), Optional()],
-        render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
+        validate_choice=False,
+        choices=[],
+        render_kw={
+            "class": STANDARD_FORM_INPUT_CLASSES, 
+            "placeholder": "(Optional)"
+        }
     )
 
     content = TextAreaField(
         "Content: ",
-        render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "rows": "3"}
+        render_kw={
+            "class": STANDARD_FORM_INPUT_CLASSES, 
+            "placeholder": "(Optional)", 
+            "rows": "3"
+        }
     )
-
-    # tag_ids = SelectMultipleField(
-    #     "Search Tags: ",
-    #     coerce=int,
-    #     render_kw={"class": SHORT_FORM_INPUT_CLASSES}
-    # )
 
     tag_search = StringField(
         "Search Tags: ",
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES, "data-loc": "post"}
     )
 
-    tag_ids = HiddenField(
-
-    )
+    tag_ids = HiddenField()
 
 
 class AddTagsForm(FlaskForm):

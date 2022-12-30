@@ -48,12 +48,13 @@ function infiniteScroll() {
     );
 
     if(atBottom && morePostsToLoad && !loadingPosts) {
-        console.log("infinite scroll")
         handleGetMorePosts();
     }
 }
 
-$(window).on("scroll", infiniteScroll);
+if ($("#posts").length) {
+    $(window).on("scroll", infiniteScroll);
+}
 
 /**
  * AJAX get request to get more posts.
@@ -83,3 +84,65 @@ function updateDOMWithPosts(posts) {
         $postList.append($(post.html));
     }
 }
+
+
+// *****************************************************************************
+// API CALL FOR PULLING URL INFORMATION, POPULATING FIELDS
+
+const $urlField = $("#url")
+const $imgUrls = $("#img_urls");
+
+$("#img_urls").after($(`<div id="image-preview"></div>`))
+const $imgPrev = $("#image-preview");
+
+/**
+ * gets title and image link from provided URL for auto-populating form.
+*/
+async function getUrlData() {
+    if (!$urlField.val()) {
+        return
+    }
+    
+    const response = await axios.get(
+        `${API_ENDPOINT_URL}/posts/get-data`,
+        {
+            params: {
+                url: $urlField.val()
+            }
+        }
+        )
+        
+    $("#title").val(response.data.h1);
+    
+    $imgUrls.empty();
+
+    $imgUrls.append($('<option>', {
+        value: "",
+        text: "(None)"
+    }));
+
+    $.each(response.data.img_urls, function (i, item) {
+        $imgUrls.append($('<option>', { 
+            value: item,
+            text : item 
+        }));
+    });
+
+    $imgUrls.val(response.data.img_urls[0]);
+    $imgPrev.html(`<img class="img-thumbail" src="${response.data.img_urls[0]}" />`);
+}
+
+$urlField.on("focusout", getUrlData);
+
+// *****************************************************************************
+// LISTENER FOR CHANGING IMAGE URL FIELD
+
+function loadNewImagePreview() {
+    console.log($imgUrls.val())
+    // this isn't working... not sure why
+    $imgPrev.html(`
+        <img height="200px" class="img-thumbnail" src="${$imgUrls.val()}" />
+    `)
+}
+
+$imgUrls.on("change", loadNewImagePreview)
