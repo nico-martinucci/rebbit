@@ -1,6 +1,6 @@
 <article class="card flex-row flex-wrap m-2 p-2" data-content-type="post" data-id="{{post.id}}">
-    <div class="card-header border-0 p-0">
-        <img width="80px" src="{{post.img_url}}" alt="" />
+    <div style="height: 100px" class="card-header border-0 p-0">
+        <img style="height: 100%; width: 100px; object-fit: contain;" src="{{post.img_url}}" alt="" />
     </div>
     <div class="card-block px-2 m-1">
         <a style="color: inherit" href="{{post.url}}"><h5 class="card-title">{{post.title}}</h5></a>
@@ -36,3 +36,9 @@
         </p>
     </div>
 </article>
+
+<!-- style="
+width: 70px;
+aspect-ratio: auto 70 / 70;
+height: 70px;
+" -->

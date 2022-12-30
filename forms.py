@@ -54,7 +54,7 @@ class AddTagsForm(FlaskForm):
 
     tag = StringField(
         "Tag: ",
-        validators=[InputRequired()],
+        validators=[InputRequired(), length(max=30)],
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
     

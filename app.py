@@ -618,11 +618,22 @@ def get_url_data():
 
     soup = bs(page.text, 'html.parser')
 
+    """ 
+    For h1:
+    - remove any leading spaces
+     """
+
+    """
+    For img:
+    - pick the second image if there is one, first image if not 
+     """
+    imgs = soup.find_all("img")
+
     # soup.h1.text
     # soup.img.attrs["src"]
     # find nav; find next sibling; find first image in that sibling
 
-    img_url = soup.img.attrs["src"]
+    img_url = img.attrs["src"]
 
     # if soup.nav:
     #     img_url = soup.nav.find_next_sibling().img["src"]
