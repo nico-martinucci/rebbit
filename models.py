@@ -27,9 +27,14 @@ class User(db.Model):
     )
 
     username = db.Column(
-        db.String(50),
+        db.String(20),
         nullable=False,
         unique=True
+    )
+
+    role = db.Column(
+        db.String,
+        nullable=False
     )
 
     password = db.Column(
@@ -65,12 +70,13 @@ class User(db.Model):
     )
 
     @classmethod
-    def signup(cls, username, email, password):
+    def signup(cls, username, role, email, password):
         """ Hashes provided password and returns a new User instance. """
         
         hashed = bcrypt.generate_password_hash(password).decode("utf8")
         user = cls(
             username=username, 
+            role=role,
             email=email, 
             password=hashed
         )

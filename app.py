@@ -3,8 +3,12 @@ import os
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
-from flask import (Flask, request, redirect, render_template, flash, session, g, 
+from flask import (Flask, Response, request, redirect, render_template, flash, session, g, 
     jsonify)
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from flask_basicauth import BasicAuth
+from werkzeug.exceptions import HTTPException
 from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import desc
 from sqlalchemy.sql import func
@@ -16,13 +20,44 @@ from forms import (AddPostForm, AddTagsForm, SearchTagsForm, AddCommentForm,
 from bs4 import BeautifulSoup as bs
 
 app = Flask(__name__)
+basic_auth = BasicAuth(app)
 csrf = CSRFProtect(app)
 csrf.init_app(app)
+
+
+class ModelView(ModelView):
+    def is_accessible(self):
+        if not basic_auth.authenticate():
+            raise AuthException('Not authenticated.')
+        else:
+            return True
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(basic_auth.challenge())
+
+class AuthException(HTTPException):
+    def __init__(self, message):
+        super().__init__(message, Response(
+            "You could not be authenticated. Please refresh the page.", 401,
+            {'WWW-Authenticate': 'Basic realm="Login Required"'}
+        ))
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///rebbit'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = 'tacosandburritos'
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
+app.config['BASIC_AUTH_USERNAME'] = 'admin'
+app.config['BASIC_AUTH_PASSWORD'] = 'S{?TS8i@!LaO.EbJ+Q<MFan.gC(uanmu,mTQV-6j+Y(7yVJ5nW'
+
+admin = Admin(app)
+
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Post, db.session))
+admin.add_view(ModelView(Comment, db.session))
+admin.add_view(ModelView(Tag, db.session))
 
 # debug = DebugToolbarExtension(app)
 
@@ -35,6 +70,9 @@ COMMENT_LIMIT = 3
 connect_db(app)
 # db.drop_all()
 db.create_all()
+
+
+
 
 @app.before_request
 def add_user_to_g():
@@ -98,7 +136,6 @@ def get_list_of_liked_content():
                 UserCommentVote.score == -1
             ).one_or_none()
         ]
-
 
 
 @app.get("/")
@@ -167,6 +204,7 @@ def signup_user():
 
         new_user = User.signup(
             username=username,
+            role="user",
             email=email,
             password=password
         )

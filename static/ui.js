@@ -149,3 +149,25 @@ function clearFlashMessages() {
         $modalFlashMessages.empty()
     }, FLASH_MESSAGE_LIFE_MILLISECONDS)
 }
+
+
+function randomString(len) {
+    const characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[{]}:;<,>.?/"
+    let string = "";
+    for (let i = 0; i < len; i++) {
+        randomIndex = randomInt(0, characters.length - 1)
+        string += characters[randomIndex]
+    }
+
+    return string;
+}
+
+function randomInt(low, high) {
+    if (typeof low !== "number" || typeof high !== "number") {
+        throw new Error("Invalid data type - both arguments must be numbers")
+    }
+    if (parseInt(low) !== low || parseInt(high) !== high) {
+        throw new Error("One or more non-integers provided - unpredictable results!")
+    }
+    return Math.floor(Math.random() * (high - low + 1)) + low;
+}
