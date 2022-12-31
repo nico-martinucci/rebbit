@@ -20,6 +20,8 @@ from forms import (AddPostForm, AddTagsForm, SearchTagsForm, AddCommentForm,
 from scrubbing import clean_img_url, scrub_title
 from bs4 import BeautifulSoup as bs
 
+load_dotenv()
+
 app = Flask(__name__)
 basic_auth = BasicAuth(app)
 csrf = CSRFProtect(app)
@@ -50,8 +52,8 @@ app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = 'tacosandburritos'
 app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 
-app.config['BASIC_AUTH_USERNAME'] = 'admin'
-app.config['BASIC_AUTH_PASSWORD'] = 'S{?TS8i@!LaO.EbJ+Q<MFan.gC(uanmu,mTQV-6j+Y(7yVJ5nW'
+app.config['BASIC_AUTH_USERNAME'] = os.environ['BASIC_AUTH_USERNAME']
+app.config['BASIC_AUTH_PASSWORD'] = os.environ['BASIC_AUTH_PASSWORD']
 
 admin = Admin(app)
 
