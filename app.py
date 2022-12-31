@@ -320,6 +320,25 @@ def add_new_post():
         content = form.content.data
         tag_ids = (form.tag_ids.data).split(",")
 
+        flash_messages = []
+
+        if not title:
+            flash_messages.append("please provide a post title.")
+
+        if not tag_ids[0]:
+            flash_messages.append("please select at least one tag.")
+
+        if flash_messages:
+            for msg in flash_messages:
+                flash(msg, "warning")
+
+            return render_template(
+                "add_post.html", 
+                form=form, 
+                tags=tags,
+                add_tag_form=AddTagsForm()
+            )
+
         new_post = Post(
             user_id=g.user.id, 
             title=title, 
