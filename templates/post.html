@@ -3,7 +3,11 @@
         <img style="height: 100%; width: 100px; object-fit: contain;" src="{{post.img_url}}" alt="" />
     </div>
     <div class="card-block px-2 m-1">
+        {% if post.url %}
         <a style="color: inherit" href="{{post.url}}"><h5 class="card-title">{{post.title}}</h5></a>
+        {% else %}
+        <a style="color: inherit" href="/posts/{{post.id}}"><h5 class="card-title">{{post.title}}</h5></a>
+        {% endif %}
         <p class="card-text">
             <small class="text-muted">
                 {% if g.user %}
