@@ -49,7 +49,7 @@ class AuthException(HTTPException):
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///rebbit'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SECRET_KEY'] = 'tacosandburritos'
+app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 
 app.config['BASIC_AUTH_USERNAME'] = os.environ['BASIC_AUTH_USERNAME']
