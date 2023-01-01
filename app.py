@@ -52,6 +52,9 @@ app.config['SQLALCHEMY_ECHO'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 
+# need this for now until we can debug the csrf issue...
+app.config['WTF_CSRF_ENABLED'] = False
+
 app.config['BASIC_AUTH_USERNAME'] = os.environ['BASIC_AUTH_USERNAME']
 app.config['BASIC_AUTH_PASSWORD'] = os.environ['BASIC_AUTH_PASSWORD']
 
