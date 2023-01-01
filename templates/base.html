@@ -74,7 +74,7 @@
     <script src="/static/utilities.js"></script>
     <script src="/static/ui.js"></script>
     <script type="text/javascript">
-      axios.defaults.headers.common["X-CSRFToken"] = "{{ csrf_token() }}";
+      axios.defaults.headers.common["X-CSRF-TOKEN"] = "{{ csrf_token() }}";
     </script>
   </body>
 </html>
