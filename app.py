@@ -103,7 +103,7 @@ def get_list_of_liked_content():
     """ Gets lists of liked comments and posts for current user. """
 
     if g.user:
-        g.liked_post_ids = [
+        g.liked_post_ids = {
             post.id
             for post in g.user.voted_posts
             if UserPostVote.query.filter(
@@ -111,9 +111,9 @@ def get_list_of_liked_content():
                 UserPostVote.user_id == g.user.id,
                 UserPostVote.score == 1
             ).one_or_none()
-        ]
+        }
 
-        g.disliked_post_ids = [
+        g.disliked_post_ids = {
             post.id
             for post in g.user.voted_posts
             if UserPostVote.query.filter(
@@ -121,9 +121,9 @@ def get_list_of_liked_content():
                 UserPostVote.user_id == g.user.id,
                 UserPostVote.score == -1
             ).one_or_none()
-        ]
+        }
 
-        g.liked_comment_ids = [
+        g.liked_comment_ids = {
             comment.id
             for comment in g.user.voted_comments
             if UserCommentVote.query.filter(
@@ -131,9 +131,9 @@ def get_list_of_liked_content():
                 UserCommentVote.user_id == g.user.id,
                 UserCommentVote.score == 1
             ).one_or_none()
-        ]
+        }
 
-        g.disliked_comment_ids = [
+        g.disliked_comment_ids = {
             comment.id
             for comment in g.user.voted_comments
             if UserCommentVote.query.filter(
@@ -141,7 +141,7 @@ def get_list_of_liked_content():
                 UserCommentVote.user_id == g.user.id,
                 UserCommentVote.score == -1
             ).one_or_none()
-        ]
+        }
 
 
 @app.get("/")
