@@ -7,33 +7,41 @@
 <article id="post" data-content-type="post" data-id="{{post.id}}">
     <div class="card flex-row flex-wrap m-2 p-2">
         <div class="card-header border-0 p-0">
+            {% if post.img_url != g.placeholder_image %}
+            {% if not post.content %}
+            <img width="600px" src="{{post.img_url}}" alt="" />
+            {% else %}
             <img width="300px" src="{{post.img_url}}" alt="" />
+            {% endif %}
+            {% endif %}
         </div>
         <div class="card-block px-2 m-2">
-            <a style="color: inherit" href="{{post.url}}"><h5 class="card-title">{{post.title}}</h5></a>
+            <a style="color: inherit" href="{{post.url}}">
+                <h5 class="card-title">{{post.title}}</h5>
+            </a>
             <p class="card-text"><small class="text-muted">
-                {% if g.user %}
+                    {% if g.user %}
                     {% if post.id in g.liked_post_ids %}
                     <i class="vote bi bi-arrow-up-circle text-primary" data-vote="1"></i>
                     {% else %}
                     <i class="vote bi bi-arrow-up-circle" data-vote="1"></i>
                     {% endif %}
-                {% else %}
-                    <a href="/login"><i class="bi bi-arrow-up-circle" style="color: lightgray"></i></a>
-                {% endif %}
-                <span class="vote-total"><b>{{post.score}}</b></span>
-                {% if g.user %}
-                    {% if post.id in g.disliked_post_ids %}
-                    <i class="vote bi bi-arrow-down-circle text-danger" data-vote="-1"></i> | 
                     {% else %}
-                    <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> | 
+                    <a href="/login"><i class="bi bi-arrow-up-circle" style="color: lightgray"></i></a>
                     {% endif %}
-                {% else %}    
+                    <span class="vote-total"><b>{{post.score}}</b></span>
+                    {% if g.user %}
+                    {% if post.id in g.disliked_post_ids %}
+                    <i class="vote bi bi-arrow-down-circle text-danger" data-vote="-1"></i> |
+                    {% else %}
+                    <i class="vote bi bi-arrow-down-circle" data-vote="-1"></i> |
+                    {% endif %}
+                    {% else %}
                     <a href="/login"><i class="bi bi-arrow-down-circle" style="color: lightgray"></i></a> |
-                {% endif %}                
-                by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> | 
-                posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} | 
-                tagged in {% for tag in post.tag_list %}<a href="/tags/{{tag}}"> {{ tag }} </a>{% endfor %}</small>
+                    {% endif %}
+                    by <a href="/users/{{post.user.username}}">{{post.user.username}}</a> |
+                    posted {{post.created_at.strftime("%I:%M %p on %a %B %d, %Y")}} |
+                    tagged in {% for tag in post.tag_list %}<a href="/tags/{{tag}}"> {{ tag }} </a>{% endfor %}</small>
             </p>
             <p class="card-text">{{post.content}}</p>
         </div>
@@ -44,21 +52,21 @@
 <article id="add-parent-comment" data-id="-1">
     <form class="m-2 p-2">
         {{ form.hidden_tag() }} <!--add type=hidden form fields -->
-    
+
         {% for field in form
         if field.widget.input_type != 'hidden' %}
-    
+
         <div>
             {{ field.label }}
             {{ field }}
-    
+
             {% for error in field.errors %}
             {{ error }}
             {% endfor %}
         </div>
-    
+
         {% endfor %}
-    
+
         <button type="submit" class="add-comment btn btn-sm btn-outline-primary my-3">Submit</button>
     </form>
 </article>

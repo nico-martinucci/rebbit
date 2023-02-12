@@ -1,7 +1,7 @@
 # rebbit
-### A light-weight reddit clone
+A light-weight reddit clone built with Flask and Boostrap
 
-## Features:
+## Features
 - User registration and authentication
 - Multi-media posts with auto-suggestions for title and image
 - Algorithmic post and comment sorting
@@ -11,9 +11,11 @@
 - Dynamic tag searching/adding/creating
 - Back-end API for comment posting, URL scrubbing, and voting
 - Post/comment limiting and infinite scroll
-## Tech:
+## Setting it up
+
+## Tech
 - Front-end: jQuery, Axios, Bootstrap
 - Back-end: Flask, Jinja, SQLAlchemy, WTForms, BeautifulSoup, Bcrypt, BasicAuth
-## Improvements:
+## // TODO
 - Better URL scrubbing and title/image/content suggestions
 - User profile/display customization
