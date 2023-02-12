@@ -1,6 +1,8 @@
 # rebbit
 A light-weight reddit clone built with Flask and Boostrap
 
+Deployed at: https://rebbit.onrender.com/
+
 ## Features
 - User registration and authentication
 - Multi-media posts with auto-suggestions for title and image
