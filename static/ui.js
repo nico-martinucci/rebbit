@@ -133,6 +133,12 @@ function flashMessage(style, message, loc) {
                 ${message}
             </div>
         `))
+    } else if (loc === "comment") {
+        $commentFlashMessages.html($(`
+            <div class="alert alert-${style}">
+                ${message}
+            </div>
+        `))
     }
 
     clearFlashMessages();
@@ -147,6 +153,7 @@ function clearFlashMessages() {
         $topFlashMessages.empty()
         $botFlashMessages.empty()
         $modalFlashMessages.empty()
+        $commentFlashMessages.empty()
     }, FLASH_MESSAGE_LIFE_MILLISECONDS)
 }
 

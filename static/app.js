@@ -9,6 +9,7 @@ const FLASH_MESSAGE_LIFE_MILLISECONDS = 3000;
 const $topFlashMessages = $("#top-flash-messages");
 const $botFlashMessages = $("#bot-flash-messages");
 const $modalFlashMessages = $("#modal-flash-messages");
+const $commentFlashMessages = $("#comment-flash-messages");
 
 const postId = $("#post").data("id");
 

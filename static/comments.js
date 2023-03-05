@@ -73,11 +73,15 @@ async function handleNewCommentFormSubmit(event) {
     const commentText = $commentBox.val();
     const parentCommentId = $commentBox.closest("article").data("id")
     
+    if (!commentText) {
+        flashMessage("warning", "please enter a comment before submitting.", "comment");
+        return;
+    }
+
     const commentData = await postNewComment(postId, commentText, parentCommentId);
 
     updatedDOMWithNewComment(commentData.html, parentCommentId, $submitButton);
-    // TODO: change this so it only fires if successful
-    flashMessage(commentData.flash.style, commentData.flash.message, "top");
+    flashMessage(commentData.flash.style, commentData.flash.message, "comment");
 }
 
 $("body").on("click", ".add-comment", handleNewCommentFormSubmit);
