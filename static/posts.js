@@ -114,22 +114,22 @@ async function getUrlData() {
         
     $("#title").val(response.data.h1);
     
-    $imgUrls.empty();
+    // $imgUrls.empty();
 
-    $imgUrls.append($('<option>', {
-        value: "",
-        text: "(None)"
-    }));
+    // $imgUrls.append($('<option>', {
+    //     value: "",
+    //     text: "(None)"
+    // }));
 
-    $.each(response.data.img_urls, function (i, item) {
-        $imgUrls.append($('<option>', { 
-            value: item,
-            text : item 
-        }));
-    });
+    // $.each(response.data.img_urls, function (i, item) {
+    //     $imgUrls.append($('<option>', { 
+    //         value: item,
+    //         text : item 
+    //     }));
+    // });
 
-    $imgUrls.val(response.data.img_urls[0]);
-    $imgPrev.html(`<img class="img-thumbail" src="${response.data.img_urls[0]}" />`);
+    // $imgUrls.val(response.data.img_urls[0]);
+    // $imgPrev.html(`<img class="img-thumbail" src="${response.data.img_urls[0]}" />`);
 }
 
 $urlField.on("focusout", getUrlData);

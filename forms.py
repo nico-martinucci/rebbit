@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import (StringField, SelectField, TextAreaField, 
-    SelectMultipleField, PasswordField, EmailField, HiddenField)
+    SelectMultipleField, PasswordField, EmailField, HiddenField, URLField)
 from wtforms.validators import InputRequired, Optional, URL, length
 
 WIDE_FORM_INPUT_CLASSES = "form-control mb-3"
@@ -10,7 +10,7 @@ SHORT_FORM_INPUT_CLASSES = "form-control col-3 mb-3"
 class AddPostForm(FlaskForm):
     """ Form for adding a new post. """
 
-    url = StringField(
+    url = URLField(
         "Link: ",
         validators=[URL(), Optional()],
         render_kw={
@@ -25,12 +25,9 @@ class AddPostForm(FlaskForm):
         render_kw={"class": STANDARD_FORM_INPUT_CLASSES}
     )
     
-    # how to allow for custom input, not just those generated from the scrub?
-    img_urls = SelectField(
-        "Select an Image: ",
+    img_urls = URLField(
+        "Image Link: ",
         validators=[URL(), Optional()],
-        validate_choice=False,
-        choices=[],
         render_kw={
             "class": STANDARD_FORM_INPUT_CLASSES, 
             "placeholder": "(Optional)"
