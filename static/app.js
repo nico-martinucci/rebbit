@@ -1,7 +1,7 @@
 "use strict";
 
-// const API_ENDPOINT_URL = "https://rebbit.onrender.com/api";
-const API_ENDPOINT_URL = "http://localhost:5001/api";
+const API_ENDPOINT_URL = "https://rebbit.onrender.com/api";
+// const API_ENDPOINT_URL = "http://localhost:5001/api";
 const mytoken = "{{ csrf_token() }}";
 
 const FLASH_MESSAGE_LIFE_MILLISECONDS = 3000;
